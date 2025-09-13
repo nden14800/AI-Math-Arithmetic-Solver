@@ -68,8 +68,9 @@
         }
 
         .header {
+            position: relative; /* <<< MODIFIED */
             display: flex;
-            justify-content: space-between;
+            justify-content: center; /* <<< MODIFIED */
             align-items: center;
             margin-bottom: 1.5rem;
         }
@@ -81,6 +82,8 @@
         }
         
         #settings-btn {
+            position: absolute; /* <<< MODIFIED */
+            right: 0; /* <<< MODIFIED */
             background: none;
             border: none;
             cursor: pointer;
@@ -118,7 +121,7 @@
             flex-grow: 1;
             padding: 0.75rem 1rem;
             font-size: 1rem;
-            font-family: 'Roboto', sans-serif; /* <<< MODIFIED: Added font-family */
+            font-family: 'Roboto', sans-serif;
             border-radius: 8px;
             border: 1px solid var(--border-color-light);
             background-color: var(--card-bg-light);
@@ -142,16 +145,26 @@
             }
         }
 
+        /* <<< MODIFIED: styles for the icon button >>> */
         #submit-btn {
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 46px; /* Example width */
+            height: 46px; /* Example height to match input */
+            padding: 0;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             background-color: var(--primary-color-light);
             color: white;
             transition: background-color 0.2s;
+        }
+        #submit-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
         }
         #submit-btn:hover {
             background-color: var(--primary-hover-light);
@@ -374,7 +387,12 @@
         <main>
             <div class="input-area">
                 <input type="text" id="problem-input" placeholder="数学や算数に関する質問を入力 (例: 1024を素因数分解, √100の値)">
-                <button id="submit-btn">計算</button>
+                <!-- <<< MODIFIED: Replaced text with SVG >>> -->
+                <button id="submit-btn" title="計算">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                      <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                    </svg>
+                </button>
             </div>
 
             <div id="results-container">
