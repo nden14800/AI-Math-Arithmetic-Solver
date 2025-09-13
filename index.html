@@ -1,1 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI数学・算数ソルバー</title>
 
+    <!-- Google Fonts: Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --bg-color-light: #f8f9fa;
+            --text-color-light: #212529;
+            --card-bg-light: #ffffff;
+            --border-color-light: #dee2e6;
+            --primary-color-light: #007bff;
+            --primary-hover-light: #0056b3;
+            --icon-color-light: #495057;
+            --disclaimer-text-light: #6c757d;
+
+            --bg-color-dark: #121212;
+            --text-color-dark: #e9e9e9;
+            --card-bg-dark: #1e1e1e;
+            --border-color-dark: #444;
+            --primary-color-dark: #1a73e8;
+            --primary-hover-dark: #4a90e2;
+            --icon-color-dark: #adb5bd;
+            --disclaimer-text-dark: #888;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Light Mode */
+        body {
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+        }
+        
+        /* Dark Mode */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: var(--bg-color-dark);
+                color: var(--text-color-dark);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        #settings-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        #settings-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--icon-color-light);
+        }
+        #settings-btn:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        @media (prefers-color-scheme: dark) {
+            #settings-btn svg {
+                fill: var(--icon-color-dark);
+            }
+            #settings-btn:hover {
+                background-color: rgba(255,255,255,0.1);
+            }
+        }
+
+        .input-area {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        #problem-input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif; /* <<< MODIFIED: Added font-family */
+            border-radius: 8px;
+            border: 1px solid var(--border-color-light);
+            background-color: var(--card-bg-light);
+            color: var(--text-color-light);
+            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+        }
+        #problem-input:focus {
+            outline: none;
+            border-color: var(--primary-color-light);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        @media (prefers-color-scheme: dark) {
+            #problem-input {
+                border-color: var(--border-color-dark);
+                background-color: var(--card-bg-dark);
+                color: var(--text-color-dark);
+            }
+            #problem-input:focus {
+                border-color: var(--primary-color-dark);
+                box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.3);
+            }
+        }
+
+        #submit-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: var(--primary-color-light);
+            color: white;
+            transition: background-color 0.2s;
+        }
+        #submit-btn:hover {
+            background-color: var(--primary-hover-light);
+        }
+        @media (prefers-color-scheme: dark) {
+            #submit-btn {
+                background-color: var(--primary-color-dark);
+            }
+            #submit-btn:hover {
+                background-color: var(--primary-hover-dark);
+            }
+        }
+
+        .result-card {
+            background-color: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        @media (prefers-color-scheme: dark) {
+            .result-card {
+                background-color: var(--card-bg-dark);
+                border-color: var(--border-color-dark);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        .card-header svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-color-light);
+        }
+        @media (prefers-color-scheme: dark) {
+            .card-header svg {
+                fill: var(--text-color-dark);
+            }
+        }
+
+        .result-content, .steps-content {
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        
+        .steps-btn {
+            margin-top: 1.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border: 1px solid var(--primary-color-light);
+            color: var(--primary-color-light);
+            background-color: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .steps-btn:hover {
+            background-color: var(--primary-color-light);
+            color: white;
+        }
+        @media (prefers-color-scheme: dark) {
+            .steps-btn {
+                border-color: var(--primary-color-dark);
+                color: var(--primary-color-dark);
+            }
+            .steps-btn:hover {
+                background-color: var(--primary-color-dark);
+                color: var(--text-color-dark);
+            }
+        }
+
+        .card-footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color-light);
+            text-align: center;
+        }
+        @media (prefers-color-scheme: dark) {
+             .card-footer {
+                border-top-color: var(--border-color-dark);
+            }
+        }
+
+        .disclaimer {
+            font-size: 0.8rem;
+            color: var(--disclaimer-text-light);
+        }
+        @media (prefers-color-scheme: dark) {
+            .disclaimer {
+                color: var(--disclaimer-text-dark);
+            }
+        }
+
+        /* Loader */
+        .loader-container {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .loader {
+            width: 50px;
+            height: 50px;
+            animation: rotate 1s linear infinite;
+            transform-origin: center center;
+        }
+        .loader .path {
+            stroke: var(--primary-color-light);
+            stroke-linecap: round;
+            stroke-dasharray: 89 150;
+            stroke-dashoffset: 0;
+        }
+        @media (prefers-color-scheme: dark) {
+            .loader .path {
+                stroke: var(--primary-color-dark);
+            }
+        }
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: var(--card-bg-light);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        @media (prefers-color-scheme: dark) {
+            .modal-content {
+                background-color: var(--card-bg-dark);
+            }
+        }
+        .modal-content h2 {
+            margin-top: 0;
+        }
+        .modal-content label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        #api-key-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color-light);
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+        @media (prefers-color-scheme: dark) {
+            #api-key-input {
+                border-color: var(--border-color-dark);
+                background-color: var(--bg-color-dark);
+                color: var(--text-color-dark);
+            }
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        .modal-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        #save-api-key-btn {
+            background-color: var(--primary-color-light);
+            color: white;
+        }
+        @media (prefers-color-scheme: dark) {
+            #save-api-key-btn {
+                background-color: var(--primary-color-dark);
+            }
+        }
+        #close-modal-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>AI数学・算数ソルバー</h1>
+            <button id="settings-btn" title="設定">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16"> <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/> <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527-1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/></svg>
+            </button>
+        </header>
+
+        <main>
+            <div class="input-area">
+                <input type="text" id="problem-input" placeholder="数学や算数に関する質問を入力 (例: 1024を素因数分解, √100の値)">
+                <button id="submit-btn">計算</button>
+            </div>
+
+            <div id="results-container">
+                <!-- AIの回答はここに表示されます -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h2>設定</h2>
+            <label for="api-key-input">Gemini APIキー</label>
+            <input type="password" id="api-key-input" placeholder="APIキーを入力してください">
+            <div class="modal-actions">
+                <button id="close-modal-btn" class="modal-btn">閉じる</button>
+                <button id="save-api-key-btn" class="modal-btn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const problemInput = document.getElementById('problem-input');
+            const submitBtn = document.getElementById('submit-btn');
+            const resultsContainer = document.getElementById('results-container');
+            const settingsBtn = document.getElementById('settings-btn');
+            const modalOverlay = document.getElementById('modal-overlay');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+            const apiKeyInput = document.getElementById('api-key-input');
+
+            const AI_MODEL = 'gemini-2.5-flash';
+            let apiKey = localStorage.getItem('geminiApiKey');
+
+            // --- KaTeX Auto-render settings ---
+            const renderMath = (element) => {
+                renderMathInElement(element, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+            };
+
+            // --- Modal Logic ---
+            const openModal = () => {
+                apiKeyInput.value = apiKey || '';
+                modalOverlay.style.display = 'flex';
+            };
+            const closeModal = () => modalOverlay.style.display = 'none';
+
+            settingsBtn.addEventListener('click', openModal);
+            closeModalBtn.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) closeModal();
+            });
+            saveApiKeyBtn.addEventListener('click', () => {
+                apiKey = apiKeyInput.value.trim();
+                if (apiKey) {
+                    localStorage.setItem('geminiApiKey', apiKey);
+                    alert('APIキーを保存しました。');
+                    closeModal();
+                } else {
+                    alert('APIキーを入力してください。');
+                }
+            });
+
+            // --- Main Logic ---
+            const showLoader = () => {
+                resultsContainer.innerHTML = `
+                    <div class="loader-container" style="display: flex;">
+                        <svg class="loader" viewBox="0 0 50 50">
+                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="3.5"></circle>
+                        </svg>
+                    </div>`;
+            };
+            
+            const showError = (message) => {
+                resultsContainer.innerHTML = `<div class="result-card"><p>エラー: ${message}</p></div>`;
+            };
+
+            const callGeminiApi = async (prompt) => {
+                if (!apiKey) {
+                    throw new Error('APIキーが設定されていません。右上の歯車アイコンから設定してください。');
+                }
+                
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: {
+                                temperature: 0.2,
+                                maxOutputTokens: 2048,
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error?.message || `HTTPエラー: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    
+                    if (text) {
+                        return text;
+                    } else {
+                        const finishReason = data?.candidates?.[0]?.finishReason;
+                        let errorMessage = 'AIが回答を生成できませんでした。';
+                        if (finishReason === 'SAFETY') {
+                            errorMessage += ' 安全性の設定により、回答がブロックされた可能性があります。';
+                        } else if (finishReason) {
+                            errorMessage += ` (理由: ${finishReason})`;
+                        } else {
+                            errorMessage += ' 入力内容が複雑すぎるか、不適切である可能性があります。';
+                        }
+                        throw new Error(errorMessage);
+                    }
+
+                } catch (error) {
+                    console.error('API呼び出しエラー:', error);
+                    throw error;
+                }
+            };
+            
+            const handleSubmission = async () => {
+                const problem = problemInput.value.trim();
+                if (!problem) return;
+
+                showLoader();
+                
+                const prompt = `以下の数学や算数に関する質問に答えてください。答えと、必要であれば簡単な解説を日本語で記述してください。数式は必ずKaTeXの形式($$...$$ や $...$)で出力してください。\n\n質問: ${problem}`;
+                
+                try {
+                    const resultText = await callGeminiApi(prompt);
+                    resultsContainer.innerHTML = `
+                        <div class="result-card" id="initial-answer-card">
+                            <div class="card-header">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                    <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                </svg>
+                                <span>AIによる回答</span>
+                            </div>
+                            <div class="result-content">${resultText}</div>
+                            <button class="steps-btn" id="show-steps-btn">AIによるステップごとの解説</button>
+                            <footer class="card-footer">
+                                <p class="disclaimer">AIの回答には間違いが含まれている場合があります。</p>
+                            </footer>
+                        </div>
+                    `;
+                    renderMath(resultsContainer);
+                    document.getElementById('show-steps-btn').addEventListener('click', () => getStepByStep(problem, resultText));
+                } catch (error) {
+                    showError(error.message);
+                }
+            };
+            
+            const getStepByStep = async (problem, initialAnswer) => {
+                const stepsBtn = document.getElementById('show-steps-btn');
+                stepsBtn.disabled = true;
+                stepsBtn.textContent = '解説を生成中...';
+
+                const loaderContainer = document.createElement('div');
+                loaderContainer.id = 'steps-loader-container';
+                loaderContainer.innerHTML = `
+                    <div class="loader-container" style="display: flex;">
+                        <svg class="loader" viewBox="0 0 50 50">
+                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="3.5"></circle>
+                        </svg>
+                    </div>`;
+                document.getElementById('initial-answer-card').insertAdjacentElement('afterend', loaderContainer);
+
+                const prompt = `以下の質問とそのAIによる回答について、ステップごとの詳しい解説を作成してください。\n\n質問: ${problem}\n\nAIによる回答: ${initialAnswer}\n\n解説は日本語で、数式はKaTeX形式で出力してください。`;
+                
+                try {
+                    const stepsText = await callGeminiApi(prompt);
+                    const stepsCard = document.createElement('div');
+                    stepsCard.className = 'result-card';
+                    stepsCard.innerHTML = `
+                        <div class="card-header">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-journal-check" viewBox="0 0 16 16">
+                              <path fill-rule="evenodd" d="M10.854 6.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 8.793l2.646-2.647a.5.5 0 0 1 .708 0"/>
+                              <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/>
+                              <path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/>
+                            </svg>
+                           <span>AIによるステップごとの解説</span>
+                        </div>
+                        <div class="steps-content">${stepsText}</div>
+                        <footer class="card-footer">
+                            <p class="disclaimer">AIの回答には間違いが含まれている場合があります。</p>
+                        </footer>
+                    `;
+                    document.getElementById('initial-answer-card').insertAdjacentElement('afterend', stepsCard);
+                    renderMath(stepsCard);
+                    stepsBtn.style.display = 'none';
+                } catch (error) {
+                    alert(`解説の生成に失敗しました: ${error.message}`);
+                    stepsBtn.disabled = false;
+                    stepsBtn.textContent = 'AIによるステップごとの解説';
+                } finally {
+                    const existingLoader = document.getElementById('steps-loader-container');
+                    if (existingLoader) {
+                        existingLoader.remove();
+                    }
+                }
+            };
+
+            submitBtn.addEventListener('click', handleSubmission);
+            problemInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    handleSubmission();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
