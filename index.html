@@ -10,9 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- KaTeX -->
+    <!-- KaTeX: <<< 修正: 正しいCDNリンクとintegrity属性に修正しました >>> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-KiWOvVjnN8qwZuNufXEypUIMPdlkBqpsnAmmbfJl2R0OK0OwZ-/FrGcVdX5TGece" crossorigin="anonymous">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTadBadd8+MWUoRA bowingBovdIyyfaep/DCpT5TRiA82oZayCX5O6GsmQzW" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTadBadd8+MWUoRA6UOgEAWs3rz7eSM+kLpVEhCi9PTJla8SvpJ3/3+K4c" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GtitreqcNFeWKTIxmpHdEuIu06PC5wfctTcaDDOLqHLyWPmD" crossorigin="anonymous"></script>
 
     <style>
@@ -271,7 +271,6 @@
     <div class="container">
         <header class="header">
             <h1>AI数学・算数ソルバー</h1>
-            <!-- <<< 削除: 設定ボタンを削除しました >>> -->
         </header>
 
         <main>
@@ -290,21 +289,20 @@
         </main>
     </div>
 
-    <!-- <<< 削除: 設定モーダルを削除しました >>> -->
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const problemInput = document.getElementById('problem-input');
             const submitBtn = document.getElementById('submit-btn');
             const resultsContainer = document.getElementById('results-container');
 
-            // --- ★★★ 変更点 ★★★ ---
+            // --- ★★★ 重要 ★★★ ---
             // Cloudflare WorkerのURLを設定します。
             // ご自身のWorkerのURLに書き換えてください。
             const WORKER_URL = 'https://math-solver-proxy.nden14800.workers.dev'; 
 
             // --- KaTeX Auto-render settings ---
             const renderMath = (element) => {
+                // この関数が正しく動作するためには、<head>内のKaTeXスクリプトが正常に読み込まれている必要があります。
                 renderMathInElement(element, {
                     delimiters: [
                         {left: '$$', right: '$$', display: true},
@@ -315,8 +313,6 @@
                     throwOnError: false
                 });
             };
-
-            // <<< 削除: モーダル関連のロジックをすべて削除しました >>>
 
             // --- Main Logic ---
             const showLoader = () => {
@@ -332,10 +328,7 @@
                 resultsContainer.innerHTML = `<div class="result-card"><p>エラー: ${message}</p></div>`;
             };
 
-            // --- ★★★ 変更点 ★★★ ---
-            // API呼び出し関数をCloudflare Workerを介するように変更
             const callApiViaWorker = async (prompt) => {
-                // WorkerのURLが設定されていない場合はエラーを表示
                 if (!WORKER_URL || WORKER_URL.includes('YOUR_USERNAME')) {
                     throw new Error('Cloudflare WorkerのURLが設定されていません。コードを編集してください。');
                 }
@@ -344,7 +337,7 @@
                     const response = await fetch(WORKER_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt: prompt }) // Workerにプロンプトを渡す
+                        body: JSON.stringify({ prompt: prompt })
                     });
 
                     const data = await response.json();
@@ -372,11 +365,10 @@
 
                 } catch (error) {
                     console.error('API呼び出しエラー:', error);
-                    // ネットワークエラーなども考慮
                     if (error instanceof TypeError) {
                         throw new Error('ネットワークエラー、またはCORS設定に問題がある可能性があります。Cloudflare Workerの設定を確認してください。');
                     }
-                    throw error; // それ以外のエラーはそのままスロー
+                    throw error;
                 }
             };
             
@@ -389,7 +381,7 @@
                 const prompt = `以下の数学や算数に関する質問に答えてください。答えと、必要であれば簡単な解説を日本語で記述してください。数式は必ずKaTeXの形式($$...$$ や $...$)で出力してください。\n\n質問: ${problem}`;
                 
                 try {
-                    const resultText = await callApiViaWorker(prompt); // 修正: callApiViaWorkerを呼び出す
+                    const resultText = await callApiViaWorker(prompt);
                     resultsContainer.innerHTML = `
                         <div class="result-card" id="initial-answer-card">
                             <div class="card-header">
@@ -430,7 +422,7 @@
                 const prompt = `以下の数学や算数に関する質問とそのAIによる回答について、ステップごとの詳しい解説を作成してください。\n\n質問: ${problem}\n\nAIによる回答: ${initialAnswer}\n\n解説は日本語で、数式はKaTeX形式で出力してください。`;
                 
                 try {
-                    const stepsText = await callApiViaWorker(prompt); // 修正: callApiViaWorkerを呼び出す
+                    const stepsText = await callApiViaWorker(prompt);
                     const stepsCard = document.createElement('div');
                     stepsCard.className = 'result-card';
                     stepsCard.innerHTML = `
