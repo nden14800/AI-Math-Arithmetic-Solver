@@ -10,10 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- KaTeX: <<< 修正: 正しいCDNリンクとintegrity属性に修正しました >>> -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-KiWOvVjnN8qwZuNufXEypUIMPdlkBqpsnAmmbfJl2R0OK0OwZ-/FrGcVdX5TGece" crossorigin="anonymous">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTadBadd8+MWUoRA6UOgEAWs3rz7eSM+kLpVEhCi9PTJla8SvpJ3/3+K4c" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GtitreqcNFeWKTIxmpHdEuIu06PC5wfctTcaDDOLqHLyWPmD" crossorigin="anonymous"></script>
+    <!-- KaTeX: <<< 修正: ご提示いただいたv0.16.22の公式CDNリンクに差し替えました >>> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
 
     <style>
         :root {
@@ -302,7 +302,7 @@
 
             // --- KaTeX Auto-render settings ---
             const renderMath = (element) => {
-                // この関数が正しく動作するためには、<head>内のKaTeXスクリプトが正常に読み込まれている必要があります。
+                // <head>内のKaTeXスクリプトが正しく読み込まれることで、この `renderMathInElement` 関数が利用可能になります。
                 renderMathInElement(element, {
                     delimiters: [
                         {left: '$$', right: '$$', display: true},
