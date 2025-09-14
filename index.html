@@ -575,7 +575,7 @@
                     </div>`;
                 document.getElementById('initial-answer-card').insertAdjacentElement('afterend', loaderContainer);
 
-                const prompt = `以下の質問とそのAIによる回答について、ステップごとの詳しい解説を作成してください。\n\n質問: ${problem}\n\nAIによる回答: ${initialAnswer}\n\n解説は日本語で、数式はKaTeX形式で出力してください。`;
+                const prompt = `以下の数学や算数に関する質問とそのAIによる回答について、ステップごとの詳しい解説を作成してください。\n\n質問: ${problem}\n\nAIによる回答: ${initialAnswer}\n\n解説は日本語で、数式はKaTeX形式で出力してください。`;
                 
                 try {
                     const stepsText = await callGeminiApi(prompt);
