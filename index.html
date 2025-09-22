@@ -83,7 +83,7 @@
         .input-area {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem; /* プレビューエリアとの間隔を調整 */
         }
 
         #problem-input {
@@ -113,6 +113,46 @@
                 box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.3);
             }
         }
+
+        /* --- ここから画像アップロードボタンのスタイル --- */
+        .icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 46px;
+            height: 46px;
+            padding: 0;
+            border: 1px solid var(--border-color-light);
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: var(--card-bg-light);
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--icon-color-light);
+        }
+        .icon-btn:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .icon-btn {
+                border-color: var(--border-color-dark);
+                background-color: var(--card-bg-dark);
+            }
+            .icon-btn svg {
+                fill: var(--icon-color-dark);
+            }
+            .icon-btn:hover {
+                background-color: #333;
+                border-color: #555;
+            }
+        }
+        /* --- ここまで画像アップロードボタンのスタイル --- */
 
         #submit-btn {
             display: flex;
@@ -146,7 +186,46 @@
             }
         }
 
-        /* --- ここから修正 --- */
+        /* --- ここから画像プレビューのスタイル --- */
+        #image-preview-container {
+            position: relative;
+            margin-bottom: 2rem;
+            max-width: 250px;
+        }
+        #image-preview-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color-light);
+        }
+        @media (prefers-color-scheme: dark) {
+            #image-preview-container img {
+                border-color: var(--border-color-dark);
+            }
+        }
+        .remove-img-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 24px;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .remove-img-btn:hover {
+            opacity: 1;
+        }
+        /* --- ここまで画像プレビューのスタイル --- */
+
 
         /* グラデーションアニメーションの定義 */
         @keyframes rainbow-border-animation {
@@ -156,38 +235,29 @@
         }
 
         .result-card {
-            /* 元の背景色とボーダー指定を削除 */
-            /* background-color: var(--card-bg-light); */
-            /* border: 1px solid var(--border-color-light); */
-            
             border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 1rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             transition: box-shadow 0.3s;
             
-            /* グラデーション枠のためのスタイルを追加 */
-            border: 3px solid transparent; /* 枠線の太さを設定し、透明にする */
+            border: 3px solid transparent;
             background-origin: border-box;
-            background-clip: padding-box, border-box; /* 内側はpadding-boxまで、外側はborder-boxまで */
+            background-clip: padding-box, border-box;
             
-            /* 背景を2つ指定: 1つ目は内側の塗りつぶし、2つ目は枠線のグラデーション */
             background-image: linear-gradient(var(--card-bg-light), var(--card-bg-light)), 
                               linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
-            background-size: 100% 100%, 400% 400%; /* 内側は固定、外側のグラデーションをアニメーション用に大きく設定 */
+            background-size: 100% 100%, 400% 400%;
             animation: rainbow-border-animation 8s linear infinite;
         }
 
         @media (prefers-color-scheme: dark) {
             .result-card {
                 box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-                /* ダークモード用の内側背景色を指定 */
                 background-image: linear-gradient(var(--card-bg-dark), var(--card-bg-dark)), 
                                   linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
             }
         }
-        /* --- ここまで修正 --- */
-
 
         .card-header {
             display: flex;
@@ -302,12 +372,27 @@
         <main>
             <div class="input-area">
                 <input type="text" id="problem-input" placeholder="数学や算数に関する質問を入力">
+                
+                <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+                <input type="file" id="image-input" accept="image/*" style="display: none;">
+                <button id="image-btn" class="icon-btn" title="画像を選択">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
+                        <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                        <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>
+                    </svg>
+                </button>
+                <!-- ▲▲▲ ここまで追加 ▲▲▲ -->
+
                 <button id="submit-btn" title="計算">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
                       <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
                     </svg>
                 </button>
             </div>
+            
+            <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+            <div id="image-preview-container"></div>
+            <!-- ▲▲▲ ここまで追加 ▲▲▲ -->
 
             <div id="results-container">
                 <!-- AIの回答はここに表示されます -->
@@ -320,6 +405,13 @@
             const problemInput = document.getElementById('problem-input');
             const submitBtn = document.getElementById('submit-btn');
             const resultsContainer = document.getElementById('results-container');
+            
+            // --- ▼▼▼ ここから追加 ▼▼▼ ---
+            const imageBtn = document.getElementById('image-btn');
+            const imageInput = document.getElementById('image-input');
+            const imagePreviewContainer = document.getElementById('image-preview-container');
+            let uploadedImageBase64 = null;
+            // --- ▲▲▲ ここまで追加 ▲▲▲ ---
 
             // --- ★★★ 重要 ★★★ ---
             // Cloudflare WorkerのURLを設定します。
@@ -328,7 +420,6 @@
 
             // --- KaTeX Auto-render settings ---
             const renderMath = (element) => {
-                // <head>内のKaTeXスクリプトが正しく読み込まれることで、この `renderMathInElement` 関数が利用可能になります。
                 renderMathInElement(element, {
                     delimiters: [
                         {left: '$$', right: '$$', display: true},
@@ -339,6 +430,30 @@
                     throwOnError: false
                 });
             };
+
+            // --- ▼▼▼ ここから追加: 画像処理関連の関数 ▼▼▼ ---
+            const handleImageSelect = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    uploadedImageBase64 = reader.result;
+                    imagePreviewContainer.innerHTML = `
+                        <img src="${reader.result}" alt="選択された画像">
+                        <button class="remove-img-btn" title="画像を削除">&times;</button>
+                    `;
+                    document.querySelector('.remove-img-btn').addEventListener('click', removeImage);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const removeImage = () => {
+                uploadedImageBase64 = null;
+                imageInput.value = ''; // これで同じファイルを再度選択できるようになる
+                imagePreviewContainer.innerHTML = '';
+            };
+            // --- ▲▲▲ ここまで追加 ▲▲▲ ---
 
             // --- Main Logic ---
             const showLoader = () => {
@@ -354,16 +469,25 @@
                 resultsContainer.innerHTML = `<div class="result-card"><p>エラー: ${message}</p></div>`;
             };
 
-            const callApiViaWorker = async (prompt) => {
+            // --- ▼▼▼ ここから修正: callApiViaWorker関数 ▼▼▼ ---
+            const callApiViaWorker = async (prompt, imageBase64 = null) => {
                 if (!WORKER_URL || WORKER_URL.includes('YOUR_USERNAME')) {
                     throw new Error('Cloudflare WorkerのURLが設定されていません。コードを編集してください。');
                 }
+
+                // APIに送信するリクエストボディを作成
+                const requestBody = {
+                    prompt: prompt,
+                    image: imageBase64, // 画像データ（Base64）を追加
+                    // Gemini APIがMIMEタイプを要求する場合に備える
+                    mimeType: imageBase64 ? imageBase64.substring(imageBase64.indexOf(":") + 1, imageBase64.indexOf(";")) : null
+                };
 
                 try {
                     const response = await fetch(WORKER_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt: prompt })
+                        body: JSON.stringify(requestBody)
                     });
 
                     const data = await response.json();
@@ -397,17 +521,28 @@
                     throw error;
                 }
             };
+            // --- ▲▲▲ ここまで修正 ▲▲▲ ---
             
+            // --- ▼▼▼ ここから修正: handleSubmission関数 ▼▼▼ ---
             const handleSubmission = async () => {
                 const problem = problemInput.value.trim();
-                if (!problem) return;
+                if (!problem && !uploadedImageBase64) return; // テキストも画像もなければ何もしない
 
                 showLoader();
                 
-                const prompt = `以下の数学や算数に関する質問に答えてください。答えと、必要であれば簡単な解説を日本語で記述してください。数式は必ずKaTeXの形式($$...$$ や $...$)で出力してください。\n\n質問: ${problem}`;
+                let prompt = '';
+                if(uploadedImageBase64 && problem) {
+                    prompt = `この画像と以下の質問を元に、数学や算数の問題として回答してください。答えと、必要であれば簡単な解説を日本語で記述してください。数式は必ずKaTeXの形式($$...$$ や $...$)で出力してください。\n\n質問: ${problem}`;
+                } else if (uploadedImageBase64 && !problem) {
+                    prompt = `この画像に写っている数学や算数の問題について、答えと簡単な解説を日本語で記述してください。数式は必ずKaTeXの形式($$...$$ や $...$)で出力してください。`;
+                } else {
+                    prompt = `以下の数学や算数に関する質問に答えてください。答えと、必要であれば簡単な解説を日本語で記述してください。数式は必ずKaTeXの形式($$...$$ や $...$)で出力してください。\n\n質問: ${problem}`;
+                }
                 
                 try {
-                    const resultText = await callApiViaWorker(prompt);
+                    // callApiViaWorker に画像データを渡す
+                    const resultText = await callApiViaWorker(prompt, uploadedImageBase64);
+                    
                     resultsContainer.innerHTML = `
                         <div class="result-card" id="initial-answer-card">
                             <div class="card-header">
@@ -424,13 +559,16 @@
                         </div>
                     `;
                     renderMath(resultsContainer);
-                    document.getElementById('show-steps-btn').addEventListener('click', () => getStepByStep(problem, resultText));
+                    // getStepByStepに元の問題と画像情報を渡す
+                    document.getElementById('show-steps-btn').addEventListener('click', () => getStepByStep(problem, uploadedImageBase64, resultText));
                 } catch (error) {
                     showError(error.message);
                 }
             };
+            // --- ▲▲▲ ここまで修正 ▲▲▲ ---
             
-            const getStepByStep = async (problem, initialAnswer) => {
+            // --- ▼▼▼ ここから修正: getStepByStep関数 ▼▼▼ ---
+            const getStepByStep = async (problem, image, initialAnswer) => {
                 const stepsBtn = document.getElementById('show-steps-btn');
                 stepsBtn.disabled = true;
                 stepsBtn.textContent = '解説を生成中...';
@@ -445,10 +583,13 @@
                     </div>`;
                 document.getElementById('initial-answer-card').insertAdjacentElement('afterend', loaderContainer);
 
-                const prompt = `以下の数学や算数に関する質問とそのAIによる回答について、ステップごとの詳しい解説を作成してください。\n\n質問: ${problem}\n\nAIによる回答: ${initialAnswer}\n\n解説は日本語で、数式はKaTeX形式で出力してください。`;
+                // 画像があったかどうかでプロンプトを少し変更
+                const imageContext = image ? "（関連する画像も考慮してください）" : "";
+                const prompt = `以下の数学や算数に関する質問${imageContext}とそのAIによる回答について、ステップごとの詳しい解説を作成してください。\n\n質問: ${problem}\n\nAIによる回答: ${initialAnswer}\n\n解説は日本語で、数式はKaTeX形式で出力してください。`;
                 
                 try {
-                    const stepsText = await callApiViaWorker(prompt);
+                    // ステップ解説では画像は再送信せず、テキスト情報のみで解説を生成させる
+                    const stepsText = await callApiViaWorker(prompt); 
                     const stepsCard = document.createElement('div');
                     stepsCard.className = 'result-card';
                     stepsCard.innerHTML = `
@@ -479,13 +620,19 @@
                     }
                 }
             };
+            // --- ▲▲▲ ここまで修正 ▲▲▲ ---
 
+            // --- ▼▼▼ ここから修正: イベントリスナー ▼▼▼ ---
             submitBtn.addEventListener('click', handleSubmission);
             problemInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     handleSubmission();
                 }
             });
+            // 新しく追加したイベントリスナー
+            imageBtn.addEventListener('click', () => imageInput.click());
+            imageInput.addEventListener('change', handleImageSelect);
+            // --- ▲▲▲ ここまで修正 ▲▲▲ ---
         });
     </script>
 </body>
