@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI数学・算数ソルバー</title>
 
-    <!-- Google Fonts: Roboto -->
+    <!-- Google Fonts: Roboto & Merriweather (数式っぽい雰囲気を出すためのセリフ体) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
     <!-- KaTeX: v0.16.22 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
@@ -18,247 +18,238 @@
     <style>
         :root {
             /* Wolfram Alpha Inspired Colors */
-            --wa-orange: #f96932;       /* Primary Action Color */
-            --wa-orange-hover: #e05520;
-            --wa-bg: #ffffff;           /* Main Background */
-            --wa-panel-bg: #ffffff;
-            --wa-border: #e0e0e0;       /* Subtle Border */
-            --wa-text-main: #222222;
-            --wa-text-sub: #666666;
-            --wa-input-bg: #ffffff;
-            --wa-shadow: 0 1px 4px rgba(0,0,0,0.1);
-            
+            --bg-color-light: #ffffff;
+            --text-color-light: #333333;
+            --card-bg-light: #ffffff;
+            --border-color-light: #e0e0e0; /* 薄いグレーの枠線 */
+            --primary-color: #f96932;      /* Wolfram Orange */
+            --primary-hover: #d8501e;
+            --secondary-bg: #f7f7f7;       /* ステップ解説などの背景 */
+            --input-border: #cccccc;
+            --icon-color: #555555;
+            --section-title-color: #555555;
+
             /* Dark Mode Variables */
-            --dark-bg: #181818;
-            --dark-panel-bg: #242424;
-            --dark-border: #333333;
-            --dark-text-main: #eeeeee;
-            --dark-text-sub: #aaaaaa;
-            --dark-input-bg: #2b2b2b;
+            --bg-color-dark: #121212;
+            --text-color-dark: #e9e9e9;
+            --card-bg-dark: #1e1e1e;
+            --border-color-dark: #444444;
+            --secondary-bg-dark: #2c2c2c;
+            --input-border-dark: #555555;
         }
 
         body {
-            font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: var(--wa-bg);
-            color: var(--wa-text-main);
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
             transition: background-color 0.3s, color 0.3s;
         }
 
+        /* Dark Mode Override */
         @media (prefers-color-scheme: dark) {
             body {
-                background-color: var(--dark-bg);
-                color: var(--dark-text-main);
+                background-color: var(--bg-color-dark);
+                color: var(--text-color-dark);
             }
         }
 
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 800px;
             padding: 2rem 1rem;
             box-sizing: border-box;
         }
 
-        /* Header Area */
+        /* Header / Branding */
         .header {
             text-align: center;
-            margin-bottom: 2.5rem;
-            margin-top: 2rem;
+            margin-bottom: 2rem;
         }
 
         .header h1 {
+            font-family: 'Merriweather', serif; /* 少しアカデミックな印象に */
             font-size: 2.2rem;
             font-weight: 700;
             margin: 0;
-            letter-spacing: -0.5px;
-            color: var(--wa-text-main);
+            color: var(--primary-color);
         }
-        
-        .header h1 span {
-            color: var(--wa-orange); /* Highlight color like the logo */
+        .header p {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--icon-color);
         }
-        
         @media (prefers-color-scheme: dark) {
-            .header h1 { color: var(--dark-text-main); }
+            .header p { color: #aaa; }
         }
 
-        /* Input Area - Wolfram Style: Large, clean, with an equal/search button */
-        .input-wrapper {
-            position: relative;
-            width: 100%;
-            margin-bottom: 3rem;
-        }
-
+        /* Search / Input Area */
         .input-area {
+            position: relative;
             display: flex;
-            align-items: center;
-            background-color: var(--wa-input-bg);
-            border: 1px solid var(--wa-border);
-            border-radius: 8px; /* Slightly rounded, not full pill */
-            box-shadow: var(--wa-shadow);
-            padding: 0.5rem;
-            transition: box-shadow 0.2s, border-color 0.2s;
-        }
-
-        .input-area:focus-within {
-            box-shadow: 0 2px 8px rgba(249, 105, 50, 0.25);
-            border-color: var(--wa-orange);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .input-area {
-                background-color: var(--dark-input-bg);
-                border-color: var(--dark-border);
-            }
-            .input-area:focus-within {
-                border-color: var(--wa-orange);
-            }
+            width: 100%;
+            margin-bottom: 2.5rem;
         }
 
         #problem-input {
-            flex-grow: 1;
-            padding: 0.75rem 1rem;
+            width: 100%;
+            padding: 1rem 3.5rem 1rem 1.2rem; /* 右側にボタン用の余白 */
             font-size: 1.1rem;
-            border: none;
-            background: transparent;
-            color: inherit;
-            font-family: inherit;
+            font-family: 'Roboto', sans-serif;
+            border: 1px solid var(--input-border);
+            border-radius: 4px; /* Wolframは角丸が小さい */
+            background-color: var(--card-bg-light);
+            color: var(--text-color-light);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
         #problem-input:focus {
             outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(249, 105, 50, 0.2);
+        }
+        @media (prefers-color-scheme: dark) {
+            #problem-input {
+                background-color: var(--card-bg-dark);
+                border-color: var(--input-border-dark);
+                color: var(--text-color-dark);
+            }
         }
 
         #submit-btn {
+            position: absolute;
+            right: 6px;
+            top: 6px;
+            bottom: 6px;
+            width: 48px;
+            border: none;
+            border-radius: 3px;
+            background-color: transparent;
+            cursor: pointer;
+            color: var(--primary-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 50px;
-            height: 50px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            background-color: transparent;
-            color: var(--wa-orange);
-            transition: background-color 0.2s, color 0.2s;
+            transition: background-color 0.2s;
         }
-        
         #submit-btn:hover {
             background-color: rgba(249, 105, 50, 0.1);
         }
-        
-        /* Wolfram often uses an "=" sign, but we'll use a Search/Equal hybrid or simple Search */
         #submit-btn svg {
             width: 24px;
             height: 24px;
-            fill: currentColor;
         }
 
-        /* Results Area */
-        #results-container {
+        /* Result Section - Wolfram Style */
+        .result-section {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
 
-        /* Result Cards - "Normal Ordinary Border" */
         .result-card {
-            background-color: var(--wa-panel-bg);
-            border: 1px solid var(--wa-border);
-            border-radius: 4px; /* Wolfram uses sharper corners generally */
-            padding: 1.5rem;
-            position: relative;
+            /* シンプルな枠線に変更 */
+            background-color: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 4px; /* 角丸を小さく */
+            padding: 0; /* ヘッダーとボディを分けるためpaddingリセット */
+            margin-bottom: 1rem;
+            box-shadow: none; /* フラットなデザインに */
+            overflow: hidden;
         }
-
         @media (prefers-color-scheme: dark) {
             .result-card {
-                background-color: var(--dark-panel-bg);
-                border-color: var(--dark-border);
+                background-color: var(--card-bg-dark);
+                border-color: var(--border-color-dark);
             }
         }
 
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-            font-weight: 500;
+        /* Section Header (e.g. "Input interpretation", "Result") */
+        .card-label {
+            background-color: var(--secondary-bg);
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--section-title-color);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: var(--wa-text-sub);
-            border-bottom: 1px solid #f0f0f0;
-            padding-bottom: 0.5rem;
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .card-header {
-                color: var(--dark-text-sub);
-                border-bottom-color: #333;
-            }
-        }
-
-        .card-header svg {
-            width: 18px;
-            height: 18px;
-            fill: var(--wa-orange); /* Brand color icons */
-        }
-
-        .result-content, .steps-content {
-            line-height: 1.8;
-            font-size: 1.05rem;
-            color: var(--wa-text-main);
-        }
-        @media (prefers-color-scheme: dark) {
-            .result-content, .steps-content {
-                color: var(--dark-text-main);
-            }
-        }
-
-        /* Steps Button */
-        .steps-btn {
-            margin-top: 1.5rem;
-            padding: 0.6rem 1.2rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-            border: 1px solid var(--wa-orange);
-            color: var(--wa-orange);
-            background-color: transparent;
-            border-radius: 20px; /* Pill shape */
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
+            border-bottom: 1px solid var(--border-color-light);
+            display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        .steps-btn:hover {
-            background-color: var(--wa-orange);
+        @media (prefers-color-scheme: dark) {
+            .card-label {
+                background-color: #252525;
+                border-bottom-color: var(--border-color-dark);
+                color: #aaa;
+            }
+        }
+
+        .result-content {
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Step-by-step Button Area */
+        .steps-action-area {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+
+        .steps-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
             color: white;
+            background-color: var(--primary-color);
+            border: 1px solid transparent;
+            border-radius: 20px; /* 丸みのあるボタン */
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .steps-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        .steps-btn:active {
+            transform: scale(0.98);
         }
         .steps-btn:disabled {
-            border-color: var(--wa-border);
-            color: var(--wa-text-sub);
+            opacity: 0.7;
             cursor: not-allowed;
-            background-color: transparent;
         }
-
-        /* Disclaimer */
-        .card-footer {
-            margin-top: 1.5rem;
-            padding-top: 0.5rem;
-            font-size: 0.75rem;
-            color: var(--wa-text-sub);
-            text-align: right;
+        
+        .steps-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border-color-light);
+            background-color: #fffbf8; /* ほんのり色を変えて区別 */
+            padding: 1.5rem;
+            border-radius: 4px;
         }
         @media (prefers-color-scheme: dark) {
-            .card-footer { color: var(--dark-text-sub); }
+            .steps-container {
+                border-top-color: var(--border-color-dark);
+                background-color: #252220;
+            }
         }
 
-        /* Loader */
+        .disclaimer {
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            text-align: center;
+            color: #888;
+        }
+
+        /* Loading Spinner */
         .loader-container {
             display: none;
             justify-content: center;
@@ -271,41 +262,51 @@
             animation: rotate 1s linear infinite;
         }
         .loader .path {
-            stroke: var(--wa-orange);
+            stroke: var(--primary-color);
             stroke-linecap: round;
             stroke-dasharray: 89 150;
             stroke-dashoffset: 0;
+            stroke-width: 3;
         }
         @keyframes rotate {
             100% { transform: rotate(360deg); }
         }
+
     </style>
 </head>
 <body>
 
     <div class="container">
         <header class="header">
-            <!-- タイトルを少しWolfram風に。spanで色分け -->
-            <h1>AI <span>Math</span> Solver</h1>
+            <h1>AI Math Solver</h1>
+            <p>Powered by Computational Intelligence</p>
         </header>
 
         <main>
-            <div class="input-wrapper">
-                <div class="input-area">
-                    <input type="text" id="problem-input" placeholder="計算したい式や数学の質問を入力してください...">
-                    <button id="submit-btn" title="計算">
-                        <!-- Bootstrap Icon: bi-search (または bi-arrow-return-right) -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                        </svg>
-                    </button>
-                </div>
+            <div class="input-area">
+                <input type="text" id="problem-input" placeholder="数式や問題をここに入力 (例: x^2 + 5x + 6 = 0)">
+                <button id="submit-btn" title="計算する">
+                    <!-- Bootstrap Icons: Equal (as in "Compute") or Search -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                    </svg>
+                </button>
             </div>
 
-            <div id="results-container">
-                <!-- AIの回答はここに表示されます -->
+            <div id="results-container" class="result-section">
+                <!-- 結果はここに挿入されます -->
+            </div>
+            
+            <div id="main-loader" class="loader-container">
+                <svg class="loader" viewBox="0 0 50 50">
+                    <circle class="path" cx="25" cy="25" r="20" fill="none"></circle>
+                </svg>
             </div>
         </main>
+        
+        <footer class="disclaimer">
+            <p>AIの回答には間違いが含まれている場合があります。重要な計算には専門家の確認を推奨します。</p>
+        </footer>
     </div>
 
     <script>
@@ -313,14 +314,15 @@
             const problemInput = document.getElementById('problem-input');
             const submitBtn = document.getElementById('submit-btn');
             const resultsContainer = document.getElementById('results-container');
+            const mainLoader = document.getElementById('main-loader');
 
             // --- ★★★ 重要 ★★★ ---
             // Cloudflare WorkerのURLを設定します。
-            // ご自身のWorkerのURLに書き換えてください。
             const WORKER_URL = 'https://math-solver-proxy.nden14800.workers.dev'; 
 
-            // --- KaTeX Auto-render settings ---
+            // KaTeX Rendering Helper
             const renderMath = (element) => {
+                if (!window.renderMathInElement) return;
                 renderMathInElement(element, {
                     delimiters: [
                         {left: '$$', right: '$$', display: true},
@@ -332,181 +334,132 @@
                 });
             };
 
-            // --- Main Logic ---
-            const showLoader = () => {
-                resultsContainer.innerHTML = `
-                    <div class="loader-container" style="display: flex;">
-                        <svg class="loader" viewBox="0 0 50 50">
-                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="3.5"></circle>
-                        </svg>
-                    </div>`;
-            };
-            
-            const showError = (message) => {
-                resultsContainer.innerHTML = `
-                <div class="result-card" style="border-left: 4px solid #dc3545;">
-                    <div class="card-header" style="color: #dc3545;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
-                          <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-                        </svg>
-                        エラーが発生しました
-                    </div>
-                    <p>${message}</p>
-                </div>`;
-            };
-
+            // API Call Wrapper
             const callApiViaWorker = async (prompt) => {
-                if (!WORKER_URL || WORKER_URL.includes('YOUR_USERNAME')) {
-                    throw new Error('Cloudflare WorkerのURLが設定されていません。コードを編集してください。');
-                }
+                if (!WORKER_URL) throw new Error('Worker URL未設定');
+                
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
 
-                try {
-                    const response = await fetch(WORKER_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt: prompt })
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || `サーバーからのエラー: ${response.status}`);
-                    }
-                    
-                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    
-                    if (text) {
-                        return text;
-                    } else {
-                        const finishReason = data?.candidates?.[0]?.finishReason;
-                        let errorMessage = 'AIが回答を生成できませんでした。';
-                        if (finishReason === 'SAFETY') {
-                            errorMessage += ' 安全性の設定により、回答がブロックされた可能性があります。';
-                        } else {
-                            errorMessage += ` (理由: ${finishReason})`;
-                        }
-                        throw new Error(errorMessage);
-                    }
-
-                } catch (error) {
-                    console.error('API呼び出しエラー:', error);
-                    if (error instanceof TypeError) {
-                        throw new Error('ネットワークエラー、またはCORS設定に問題がある可能性があります。');
-                    }
-                    throw error;
-                }
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || `Error: ${response.status}`);
+                
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) throw new Error('AIからの応答が空でした。');
+                return text;
             };
-            
+
+            // Main Submission Handler
             const handleSubmission = async () => {
                 const problem = problemInput.value.trim();
                 if (!problem) return;
 
-                showLoader();
-                
-                const prompt = `以下の数学や算数に関する質問に答えてください。答えと、必要であれば簡単な解説を日本語で記述してください。数式は必ずKaTeXの形式($$...$$ や $...$)で出力してください。\n\n質問: ${problem}`;
-                
+                // Reset UI
+                resultsContainer.innerHTML = '';
+                mainLoader.style.display = 'flex';
+
+                // Prompt Design
+                const prompt = `あなたは数学の専門家です。以下の質問に対して、まず簡潔な「解答」を提示してください。
+                数式は必ずKaTeX形式 ($...$ または $$...$$) を使用してください。
+                質問: ${problem}`;
+
                 try {
                     const resultText = await callApiViaWorker(prompt);
-                    // UI: Wolfram風 "Pod" スタイル
-                    resultsContainer.innerHTML = `
-                        <div class="result-card" id="initial-answer-card">
-                            <div class="card-header">
-                                <!-- Bootstrap Icon: bi-lightbulb -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightbulb" viewBox="0 0 16 16">
-                                  <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l.224.447a1 1 0 0 1 .894.553l.224.447a.5.5 0 0 1 0 1h-8a.5.5 0 0 1 0-1l.224-.447a1 1 0 0 1 .894-.553l.224-.447a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.31l-.762-1.77a2 2 0 0 0-.453-.62A5.97 5.97 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/>
-                                </svg>
-                                <span>AI による解答</span>
-                            </div>
-                            <div class="result-content">${resultText}</div>
-                            
-                            <!-- 解説ボタン -->
-                            <button class="steps-btn" id="show-steps-btn">
-                                <!-- Bootstrap Icon: bi-list-ol -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ol" viewBox="0 0 16 16">
-                                  <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5"/>
-                                  <path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.321-.244 0-.364.187-.37.412l-.004.042zm-1.296-.697h1.055v4h-1.055v-4z"/>
-                                </svg>
-                                AI によるステップごとの解説
-                            </button>
+                    
+                    mainLoader.style.display = 'none';
 
-                            <footer class="card-footer">
-                                AIの回答には間違いが含まれている場合があります。
-                            </footer>
+                    // Create Result Card (Wolfram Alpha Style)
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'result-card';
+                    resultCard.innerHTML = `
+                        <div class="card-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-lightbulb" viewBox="0 0 16 16">
+                                <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"/>
+                            </svg>
+                            AIによる解答
+                        </div>
+                        <div class="result-content">${resultText}</div>
+                        <div class="steps-action-area">
+                            <button class="steps-btn" id="show-steps-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ol" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
+                                  <path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.321-.24 0-.414.168-.42.37h-.005l.005.004zM2.564 5h-.635V2.924h-.39V2.25h1.025V5z"/>
+                                </svg>
+                                AIによるステップごとの解説を表示
+                            </button>
                         </div>
                     `;
-                    renderMath(resultsContainer);
-                    document.getElementById('show-steps-btn').addEventListener('click', () => getStepByStep(problem, resultText));
+                    resultsContainer.appendChild(resultCard);
+                    renderMath(resultCard);
+
+                    // Add Event Listener for Steps
+                    document.getElementById('show-steps-btn').addEventListener('click', (e) => getStepByStep(e.target, problem, resultText));
+
                 } catch (error) {
-                    showError(error.message);
+                    mainLoader.style.display = 'none';
+                    resultsContainer.innerHTML = `<div class="result-card" style="padding:1rem; color:red;">エラーが発生しました: ${error.message}</div>`;
                 }
             };
-            
-            const getStepByStep = async (problem, initialAnswer) => {
-                const stepsBtn = document.getElementById('show-steps-btn');
-                stepsBtn.disabled = true;
-                stepsBtn.innerHTML = `
-                    <span style="width: 1rem; height: 1rem; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; animation: rotate 1s linear infinite;"></span>
+
+            // Step-by-Step Logic (Integrated Wolfram Style)
+            const getStepByStep = async (btnElement, problem, initialAnswer) => {
+                // ボタンがアイコン内をクリックした場合の対策
+                const button = btnElement.closest('button');
+                button.disabled = true;
+                button.innerHTML = `
+                    <span style="display:inline-block; animation:rotate 1s linear infinite; margin-right:5px;">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 8 8A8 8 0 0 0 8 0zm0 14A6 6 0 1 1 14 8a6 6 0 0 1-6 6z" opacity=".2"/><path d="M8 0v2a6 6 0 0 1 6 6h2a8 8 0 0 0-8-8z"/></svg>
+                    </span>
                     解説を生成中...`;
 
-                const loaderContainer = document.createElement('div');
-                loaderContainer.id = 'steps-loader-container';
-                // 既存のカードの下にローダーは追加せず、ボタンのステータスで表現しますが、
-                // リクエストのUXフローに合わせて下にカードが出る前の待機場所を作ります
-                loaderContainer.innerHTML = `
-                    <div class="loader-container" style="display: flex;">
-                        <svg class="loader" viewBox="0 0 50 50">
-                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="3.5"></circle>
-                        </svg>
-                    </div>`;
-                document.getElementById('initial-answer-card').insertAdjacentElement('afterend', loaderContainer);
+                const prompt = `以下の質問と解答について、論理的なステップごとの詳しい解説を作成してください。
+                ステップごとに番号を振り（例: Step 1, Step 2...）、何が行われたかを明確に説明してください。
+                質問: ${problem}
+                解答: ${initialAnswer}
+                解説は日本語で、数式はKaTeX形式で出力してください。`;
 
-                const prompt = `以下の数学や算数に関する質問とそのAIによる回答について、ステップごとの詳しい解説を作成してください。\n\n質問: ${problem}\n\nAIによる回答: ${initialAnswer}\n\n解説は日本語で、数式はKaTeX形式で出力してください。`;
-                
                 try {
                     const stepsText = await callApiViaWorker(prompt);
-                    const stepsCard = document.createElement('div');
-                    stepsCard.className = 'result-card';
-                    // "AI によるステップごとの解説"
-                    stepsCard.innerHTML = `
-                        <div class="card-header">
-                           <!-- Bootstrap Icon: bi-layers -->
-                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-layers" viewBox="0 0 16 16">
-                              <path d="M8.235 1.559a.5.5 0 0 0-.47 0l-7.5 4a.5.5 0 0 0 0 .882L3.188 8 .264 9.559a.5.5 0 0 0 0 .882l7.5 4a.5.5 0 0 0 .47 0l7.5-4a.5.5 0 0 0 0-.882L12.813 8l2.922-1.559a.5.5 0 0 0 0-.882zm3.515 7.008L14.438 10 8 13.433 1.562 10 4.25 8.567l3.515 1.874a.5.5 0 0 0 .47 0zM8 9.433 1.562 6 8 2.567 14.438 6z"/>
-                           </svg>
-                           <span>AI によるステップごとの解説</span>
-                        </div>
-                        <div class="steps-content">${stepsText}</div>
-                        <footer class="card-footer">
-                            AIの回答には間違いが含まれている場合があります。
-                        </footer>
-                    `;
-                    document.getElementById('initial-answer-card').insertAdjacentElement('afterend', stepsCard);
-                    renderMath(stepsCard);
                     
-                    // ボタンを非表示にする（解説済みのため）
-                    stepsBtn.style.display = 'none';
+                    // Create Container inside the existing card (Simulating Wolfram expansion)
+                    const stepsContainer = document.createElement('div');
+                    stepsContainer.className = 'steps-container';
+                    stepsContainer.innerHTML = `
+                        <div style="font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; color:var(--primary-color);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                              <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                            </svg>
+                            AIによるステップごとの解説
+                        </div>
+                        <div class="steps-content" style="line-height:1.8;">${stepsText}</div>
+                    `;
+
+                    // Insert steps after the button area, and hide the button
+                    const actionArea = button.parentElement;
+                    actionArea.appendChild(stepsContainer);
+                    button.style.display = 'none'; // Hide the button effectively "expanding" the section
+
+                    renderMath(stepsContainer);
+
                 } catch (error) {
                     alert(`解説の生成に失敗しました: ${error.message}`);
-                    stepsBtn.disabled = false;
-                    stepsBtn.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ol" viewBox="0 0 16 16">
-                           <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5"/>
-                           <path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.321-.244 0-.364.187-.37.412l-.004.042zm-1.296-.697h1.055v4h-1.055v-4z"/>
+                    button.disabled = false;
+                    button.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                          <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
                         </svg>
-                        AI によるステップごとの解説`;
-                } finally {
-                    const existingLoader = document.getElementById('steps-loader-container');
-                    if (existingLoader) {
-                        existingLoader.remove();
-                    }
+                        再試行`;
                 }
             };
 
             submitBtn.addEventListener('click', handleSubmission);
             problemInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    handleSubmission();
-                }
+                if (e.key === 'Enter') handleSubmission();
             });
         });
     </script>
