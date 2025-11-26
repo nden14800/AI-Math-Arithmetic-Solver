@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI数学・算数ソルバー</title>
 
-    <!-- Google Fonts: Roboto & Merriweather (数式っぽい雰囲気を出すためのセリフ体) -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -21,10 +21,10 @@
             --bg-color-light: #ffffff;
             --text-color-light: #333333;
             --card-bg-light: #ffffff;
-            --border-color-light: #e0e0e0; /* 薄いグレーの枠線 */
+            --border-color-light: #e0e0e0;
             --primary-color: #f96932;      /* Wolfram Orange */
             --primary-hover: #d8501e;
-            --secondary-bg: #f7f7f7;       /* ステップ解説などの背景 */
+            --secondary-bg: #f9f9f9;       
             --input-border: #cccccc;
             --icon-color: #555555;
             --section-title-color: #555555;
@@ -36,6 +36,8 @@
             --border-color-dark: #444444;
             --secondary-bg-dark: #2c2c2c;
             --input-border-dark: #555555;
+            --primary-color-dark: #1a73e8; /* Dark mode spinner color */
+            --primary-color-light-blue: #007bff; /* Light mode spinner color */
         }
 
         body {
@@ -51,7 +53,6 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Dark Mode Override */
         @media (prefers-color-scheme: dark) {
             body {
                 background-color: var(--bg-color-dark);
@@ -64,16 +65,17 @@
             max-width: 800px;
             padding: 2rem 1rem;
             box-sizing: border-box;
+            flex-grow: 1; /* フッターを下部に押しやる */
         }
 
-        /* Header / Branding */
+        /* Header */
         .header {
             text-align: center;
             margin-bottom: 2rem;
         }
 
         .header h1 {
-            font-family: 'Merriweather', serif; /* 少しアカデミックな印象に */
+            font-family: 'Merriweather', serif;
             font-size: 2.2rem;
             font-weight: 700;
             margin: 0;
@@ -88,7 +90,7 @@
             .header p { color: #aaa; }
         }
 
-        /* Search / Input Area */
+        /* Input Area */
         .input-area {
             position: relative;
             display: flex;
@@ -98,11 +100,11 @@
 
         #problem-input {
             width: 100%;
-            padding: 1rem 3.5rem 1rem 1.2rem; /* 右側にボタン用の余白 */
+            padding: 1rem 3.5rem 1rem 1.2rem;
             font-size: 1.1rem;
             font-family: 'Roboto', sans-serif;
             border: 1px solid var(--input-border);
-            border-radius: 4px; /* Wolframは角丸が小さい */
+            border-radius: 12px; /* 丸みのある枠 */
             background-color: var(--card-bg-light);
             color: var(--text-color-light);
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -128,7 +130,7 @@
             bottom: 6px;
             width: 48px;
             border: none;
-            border-radius: 3px;
+            border-radius: 8px; /* 入力欄に合わせて少し丸く */
             background-color: transparent;
             cursor: pointer;
             color: var(--primary-color);
@@ -145,7 +147,7 @@
             height: 24px;
         }
 
-        /* Result Section - Wolfram Style */
+        /* Result Section */
         .result-section {
             display: flex;
             flex-direction: column;
@@ -153,31 +155,29 @@
         }
 
         .result-card {
-            /* シンプルな枠線に変更 */
             background-color: var(--card-bg-light);
             border: 1px solid var(--border-color-light);
-            border-radius: 4px; /* 角丸を小さく */
-            padding: 0; /* ヘッダーとボディを分けるためpaddingリセット */
-            margin-bottom: 1rem;
-            box-shadow: none; /* フラットなデザインに */
+            border-radius: 12px; /* 丸みのある枠 */
+            padding: 0;
+            margin-bottom: 0; /* gapで制御 */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); /* ほんのり影 */
             overflow: hidden;
         }
         @media (prefers-color-scheme: dark) {
             .result-card {
                 background-color: var(--card-bg-dark);
                 border-color: var(--border-color-dark);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             }
         }
 
-        /* Section Header (e.g. "Input interpretation", "Result") */
         .card-label {
             background-color: var(--secondary-bg);
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--section-title-color);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            text-transform: capitalize;
             border-bottom: 1px solid var(--border-color-light);
             display: flex;
             align-items: center;
@@ -194,10 +194,14 @@
         .result-content {
             padding: 1.5rem;
             font-size: 1.1rem;
-            line-height: 1.6;
+            line-height: 1.7;
+            /* 改行を強制的に反映させる設定 */
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-x: auto; /* 数式が長すぎる場合のスクロール */
         }
 
-        /* Step-by-step Button Area */
+        /* Action Buttons */
         .steps-action-area {
             padding: 0 1.5rem 1.5rem 1.5rem;
         }
@@ -212,7 +216,7 @@
             color: white;
             background-color: var(--primary-color);
             border: 1px solid transparent;
-            border-radius: 20px; /* 丸みのあるボタン */
+            border-radius: 20px; /* 丸いボタン */
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
         }
@@ -231,9 +235,12 @@
             margin-top: 1rem;
             padding-top: 1rem;
             border-top: 1px dashed var(--border-color-light);
-            background-color: #fffbf8; /* ほんのり色を変えて区別 */
+            background-color: #fffbf8;
             padding: 1.5rem;
-            border-radius: 4px;
+            border-radius: 8px;
+            /* 改行設定 */
+            white-space: pre-wrap; 
+            word-break: break-word;
         }
         @media (prefers-color-scheme: dark) {
             .steps-container {
@@ -242,34 +249,80 @@
             }
         }
 
-        .disclaimer {
-            margin-top: 2rem;
-            font-size: 0.75rem;
-            text-align: center;
-            color: #888;
-        }
-
-        /* Loading Spinner */
+        /* --- ローディングスピナー (ご指定のCSS) --- */
         .loader-container {
-            display: none;
+            display: none; /* 初期状態は非表示 */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
+            width: 100%;
+            padding: 2rem 0;
+            gap: 20px;
         }
+
         .loader {
-            width: 40px;
-            height: 40px;
+            width: 60px; /* 少しサイズ調整 */
+            height: 60px;
             animation: rotate 1s linear infinite;
+            transform-origin: center center;
         }
+
         .loader .path {
-            stroke: var(--primary-color);
+            stroke: var(--primary-color-light-blue); /* ライトモード色 */
             stroke-linecap: round;
             stroke-dasharray: 89 150;
             stroke-dashoffset: 0;
-            stroke-width: 3;
+            stroke-width: 2.5; /* 指定通り */
         }
+
+        @media (prefers-color-scheme: dark) {
+            .loader .path {
+                stroke: var(--primary-color-dark); /* ダークモード色 */
+            }
+        }
+
         @keyframes rotate {
-            100% { transform: rotate(360deg); }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        /* ------------------------------------------- */
+
+        /* About Section (目的) */
+        .about-section {
+            margin-top: 4rem;
+            padding: 2rem;
+            background-color: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 12px;
+            text-align: center;
+        }
+        @media (prefers-color-scheme: dark) {
+            .about-section {
+                background-color: var(--card-bg-dark);
+                border-color: var(--border-color-dark);
+            }
+        }
+        .about-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        .about-section p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-color-light);
+        }
+        @media (prefers-color-scheme: dark) {
+            .about-section p { color: var(--text-color-dark); }
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding-bottom: 1rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
         }
 
     </style>
@@ -286,25 +339,36 @@
             <div class="input-area">
                 <input type="text" id="problem-input" placeholder="数式や問題をここに入力 (例: x^2 + 5x + 6 = 0)">
                 <button id="submit-btn" title="計算する">
-                    <!-- Bootstrap Icons: Equal (as in "Compute") or Search -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                     </svg>
                 </button>
             </div>
 
-            <div id="results-container" class="result-section">
-                <!-- 結果はここに挿入されます -->
-            </div>
-            
+            <!-- ローディングコンテナ -->
             <div id="main-loader" class="loader-container">
                 <svg class="loader" viewBox="0 0 50 50">
                     <circle class="path" cx="25" cy="25" r="20" fill="none"></circle>
                 </svg>
+                <div style="font-size: 0.9rem; color: #888;">計算中...</div>
+            </div>
+
+            <div id="results-container" class="result-section">
+                <!-- 結果カードがここに動的に追加されます -->
+            </div>
+
+            <!-- サイトの目的セクション -->
+            <div class="about-section">
+                <h2>このサイトについて</h2>
+                <p>
+                    このAI数学・算数ソルバーは、最新のAI技術を活用して、ユーザーが抱える数学や算数の疑問を瞬時に解決し、
+                    論理的なステップごとの解説を通じて学習をサポートすることを目的としています。<br>
+                    宿題の確認、独学の補助、あるいは数学的な興味の探求など、あらゆる学習シーンでご活用ください。
+                </p>
             </div>
         </main>
         
-        <footer class="disclaimer">
+        <footer class="footer">
             <p>AIの回答には間違いが含まれている場合があります。重要な計算には専門家の確認を推奨します。</p>
         </footer>
     </div>
@@ -316,8 +380,8 @@
             const resultsContainer = document.getElementById('results-container');
             const mainLoader = document.getElementById('main-loader');
 
-            // --- ★★★ 重要 ★★★ ---
-            // Cloudflare WorkerのURLを設定します。
+            // --- Cloudflare WorkerのURL ---
+            // 実際の環境に合わせて設定してください
             const WORKER_URL = 'https://math-solver-proxy.nden14800.workers.dev'; 
 
             // KaTeX Rendering Helper
@@ -334,7 +398,7 @@
                 });
             };
 
-            // API Call Wrapper
+            // API Call
             const callApiViaWorker = async (prompt) => {
                 if (!WORKER_URL) throw new Error('Worker URL未設定');
                 
@@ -352,51 +416,105 @@
                 return text;
             };
 
-            // Main Submission Handler
+            // 結果カードを作成する関数
+            const createCard = (title, content, isMainResult = false) => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                
+                let iconSvg = '';
+                // タイトルに応じてアイコンを変える簡易ロジック
+                if (title.includes('入力') || title.includes('Input')) {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/><path d="M4.5 3a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm0 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4z"/></svg>`;
+                } else if (title.includes('解答') || title.includes('結果') || title.includes('Result')) {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/></svg>`; /* Play icon for Result usually, or equal sign */
+                } else if (title.includes('グラフ') || title.includes('Graph')) {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-4zm-9 4a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-4z"/></svg>`;
+                } else {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/></svg>`;
+                }
+
+                card.innerHTML = `
+                    <div class="card-label">
+                        ${iconSvg}
+                        ${title}
+                    </div>
+                    <div class="result-content">${content}</div>
+                `;
+
+                // 解答カードの場合のみ、ステップごとの解説ボタンを追加
+                if (isMainResult) {
+                    const actionArea = document.createElement('div');
+                    actionArea.className = 'steps-action-area';
+                    actionArea.innerHTML = `
+                        <button class="steps-btn" id="show-steps-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ol" viewBox="0 0 16 16">
+                              <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
+                              <path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.321-.24 0-.414.168-.42.37h-.005l.005.004zM2.564 5h-.635V2.924h-.39V2.25h1.025V5z"/>
+                            </svg>
+                            AIによるステップごとの解説
+                        </button>
+                    `;
+                    card.appendChild(actionArea);
+                }
+                return card;
+            };
+
             const handleSubmission = async () => {
                 const problem = problemInput.value.trim();
                 if (!problem) return;
 
-                // Reset UI
                 resultsContainer.innerHTML = '';
                 mainLoader.style.display = 'flex';
 
-                // Prompt Design
-                const prompt = `あなたは数学の専門家です。以下の質問に対して、まず簡潔な「解答」を提示してください。
-                数式は必ずKaTeX形式 ($...$ または $$...$$) を使用してください。
-                質問: ${problem}`;
+                // Prompt: Wolfram Alphaのようにセクション分けして回答させる
+                const prompt = `あなたは高度な数学AIエンジンです。Wolfram Alphaのように振る舞ってください。
+                ユーザーの入力: ${problem}
+
+                以下のフォーマットに従って回答を生成してください。必ず改行を入れて見やすくしてください。
+                1. 各セクションは "### セクションタイトル" という形式で開始してください。
+                2. 最初のセクションは必ず "### 入力" とし、入力を数式(KaTeX形式)で表してください。
+                3. 次のセクションは "### AIによる解答" とし、明確な答えを提示してください。
+                4. その後、入力の内容に応じて適切な追加セクション（例：### 別の形式, ### グラフの概形(言葉で説明), ### 微分, ### 積分, ### 数直線上の表示, ### 展開, ### 因数分解 など）を2〜4個程度自動的に生成してください。項目数は問題に合わせて柔軟に変えてください。
+                5. 数式は必ず $...$ または $$...$$ で囲んでください。
+                6. 説明は日本語で行ってください。
+                7. 必ず改行を入れて、テキストが詰まりすぎないようにしてください。`;
 
                 try {
-                    const resultText = await callApiViaWorker(prompt);
-                    
+                    const fullText = await callApiViaWorker(prompt);
                     mainLoader.style.display = 'none';
 
-                    // Create Result Card (Wolfram Alpha Style)
-                    const resultCard = document.createElement('div');
-                    resultCard.className = 'result-card';
-                    resultCard.innerHTML = `
-                        <div class="card-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-lightbulb" viewBox="0 0 16 16">
-                                <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"/>
-                            </svg>
-                            AIによる解答
-                        </div>
-                        <div class="result-content">${resultText}</div>
-                        <div class="steps-action-area">
-                            <button class="steps-btn" id="show-steps-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ol" viewBox="0 0 16 16">
-                                  <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
-                                  <path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.321-.24 0-.414.168-.42.37h-.005l.005.004zM2.564 5h-.635V2.924h-.39V2.25h1.025V5z"/>
-                                </svg>
-                                AIによるステップごとの解説を表示
-                            </button>
-                        </div>
-                    `;
-                    resultsContainer.appendChild(resultCard);
-                    renderMath(resultCard);
+                    // "### " でテキストを分割して各カードを生成
+                    const sections = fullText.split('### ').filter(s => s.trim() !== '');
 
-                    // Add Event Listener for Steps
-                    document.getElementById('show-steps-btn').addEventListener('click', (e) => getStepByStep(e.target, problem, resultText));
+                    sections.forEach((section, index) => {
+                        // 最初の行がタイトル、残りがコンテンツ
+                        const firstLineEnd = section.indexOf('\n');
+                        let title = '情報';
+                        let content = section;
+
+                        if (firstLineEnd !== -1) {
+                            title = section.substring(0, firstLineEnd).trim();
+                            content = section.substring(firstLineEnd).trim();
+                        } else {
+                            title = section.trim();
+                            content = '';
+                        }
+
+                        // 解答セクションかどうか判定
+                        const isMainResult = title.includes('解答') || title.includes('Result');
+                        
+                        const card = createCard(title, content, isMainResult);
+                        resultsContainer.appendChild(card);
+                        renderMath(card);
+
+                        // 解答カードの場合、イベントリスナーを設定
+                        if (isMainResult) {
+                            const btn = card.querySelector('#show-steps-btn');
+                            if(btn) {
+                                btn.addEventListener('click', (e) => getStepByStep(e.target, problem, content));
+                            }
+                        }
+                    });
 
                 } catch (error) {
                     mainLoader.style.display = 'none';
@@ -404,27 +522,28 @@
                 }
             };
 
-            // Step-by-Step Logic (Integrated Wolfram Style)
             const getStepByStep = async (btnElement, problem, initialAnswer) => {
-                // ボタンがアイコン内をクリックした場合の対策
                 const button = btnElement.closest('button');
                 button.disabled = true;
+                // ボタン内のローディングスピナー（小さいサイズ）
                 button.innerHTML = `
-                    <span style="display:inline-block; animation:rotate 1s linear infinite; margin-right:5px;">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 8 8A8 8 0 0 0 8 0zm0 14A6 6 0 1 1 14 8a6 6 0 0 1-6 6z" opacity=".2"/><path d="M8 0v2a6 6 0 0 1 6 6h2a8 8 0 0 0-8-8z"/></svg>
-                    </span>
+                    <svg class="loader" style="width:16px; height:16px; margin-right:8px; animation:rotate 1s linear infinite;" viewBox="0 0 50 50">
+                        <circle class="path" cx="25" cy="25" r="20" fill="none" stroke="#fff" stroke-width="4"></circle>
+                    </svg>
                     解説を生成中...`;
 
                 const prompt = `以下の質問と解答について、論理的なステップごとの詳しい解説を作成してください。
                 ステップごとに番号を振り（例: Step 1, Step 2...）、何が行われたかを明確に説明してください。
+                文章の途中には適宜改行を入れて、読みやすくしてください。
+                
                 質問: ${problem}
                 解答: ${initialAnswer}
+                
                 解説は日本語で、数式はKaTeX形式で出力してください。`;
 
                 try {
                     const stepsText = await callApiViaWorker(prompt);
                     
-                    // Create Container inside the existing card (Simulating Wolfram expansion)
                     const stepsContainer = document.createElement('div');
                     stepsContainer.className = 'steps-container';
                     stepsContainer.innerHTML = `
@@ -435,25 +554,19 @@
                             </svg>
                             AIによるステップごとの解説
                         </div>
-                        <div class="steps-content" style="line-height:1.8;">${stepsText}</div>
+                        <div class="steps-content">${stepsText}</div>
                     `;
 
-                    // Insert steps after the button area, and hide the button
                     const actionArea = button.parentElement;
                     actionArea.appendChild(stepsContainer);
-                    button.style.display = 'none'; // Hide the button effectively "expanding" the section
+                    button.style.display = 'none';
 
                     renderMath(stepsContainer);
 
                 } catch (error) {
                     alert(`解説の生成に失敗しました: ${error.message}`);
                     button.disabled = false;
-                    button.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                          <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                          <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                        </svg>
-                        再試行`;
+                    button.innerHTML = `再試行`;
                 }
             };
 
