@@ -426,7 +426,7 @@
                 if (title.includes('入力') || title.includes('Input')) {
                     iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/><path d="M4.5 3a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm0 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4z"/></svg>`;
                 } else if (title.includes('解答') || title.includes('結果') || title.includes('Result')) {
-                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/></svg>`; /* Play icon for Result usually, or equal sign */
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/></svg>`;
                 } else if (title.includes('グラフ') || title.includes('Graph')) {
                     iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-4zm-9 4a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-4z"/></svg>`;
                 } else {
@@ -464,20 +464,28 @@
                 if (!problem) return;
 
                 resultsContainer.innerHTML = '';
+                
+                // ★★★ ユーザーの入力をそのまま表示するカードを即座に追加 ★★★
+                const inputCard = createCard('入力', problem);
+                resultsContainer.appendChild(inputCard);
+                // ユーザーが数式形式で入力した場合のためにレンダリングを実行
+                renderMath(inputCard);
+
+                // その下にローダーを表示
                 mainLoader.style.display = 'flex';
 
                 // Prompt: Wolfram Alphaのようにセクション分けして回答させる
+                // 既にユーザー入力は表示したので、AIには「解答」から始めさせる
                 const prompt = `あなたは高度な数学AIエンジンです。Wolfram Alphaのように振る舞ってください。
                 ユーザーの入力: ${problem}
 
                 以下のフォーマットに従って回答を生成してください。必ず改行を入れて見やすくしてください。
                 1. 各セクションは "### セクションタイトル" という形式で開始してください。
-                2. 最初のセクションは必ず "### 入力" とし、入力を数式(KaTeX形式)で表してください。
-                3. 次のセクションは "### AIによる解答" とし、明確な答えを提示してください。
-                4. その後、入力の内容に応じて適切な追加セクション（例：### 別の形式, ### グラフの概形(言葉で説明), ### 微分, ### 積分, ### 数直線上の表示, ### 展開, ### 因数分解 など）を2〜4個程度自動的に生成してください。項目数は問題に合わせて柔軟に変えてください。
-                5. 数式は必ず $...$ または $$...$$ で囲んでください。
-                6. 説明は日本語で行ってください。
-                7. 必ず改行を入れて、テキストが詰まりすぎないようにしてください。`;
+                2. 最初のセクションは必ず "### AIによる解答" とし、明確な答えを提示してください。(入力の解釈は不要です)
+                3. その後、入力の内容に応じて適切な追加セクション（例：### 別の形式, ### グラフの概形(言葉で説明), ### 微分, ### 積分, ### 数直線上の表示, ### 展開, ### 因数分解 など）を自動的に生成してください。項目数は多めに、問題に合わせて柔軟に変えてください。
+                4. 数式は必ず $...$ または $$...$$ で囲んでください。
+                5. 説明は日本語で行ってください。
+                6. 必ず改行を入れて、テキストが詰まりすぎないようにしてください。`;
 
                 try {
                     const fullText = await callApiViaWorker(prompt);
@@ -499,6 +507,9 @@
                             title = section.trim();
                             content = '';
                         }
+                        
+                        // もしAIが誤って「入力」セクションを作った場合はスキップする(重複防止)
+                        if (title.includes('入力') || title.includes('Input')) return;
 
                         // 解答セクションかどうか判定
                         const isMainResult = title.includes('解答') || title.includes('Result');
@@ -518,7 +529,7 @@
 
                 } catch (error) {
                     mainLoader.style.display = 'none';
-                    resultsContainer.innerHTML = `<div class="result-card" style="padding:1rem; color:red;">エラーが発生しました: ${error.message}</div>`;
+                    resultsContainer.innerHTML += `<div class="result-card" style="padding:1rem; color:red;">エラーが発生しました: ${error.message}</div>`;
                 }
             };
 
