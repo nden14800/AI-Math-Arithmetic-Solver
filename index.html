@@ -2,389 +2,445 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI数学・算数ソルバー</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Math Solver - Vision Edition</title>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Inter & JetBrains Mono (Modern & Coding look) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- KaTeX: v0.16.22 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+    <!-- KaTeX: v0.16.9 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
     <style>
         :root {
-            /* Wolfram Alpha Inspired Colors */
-            --bg-color-light: #ffffff;
-            --text-color-light: #333333;
-            --card-bg-light: #ffffff;
-            --border-color-light: #e0e0e0;
-            --primary-color: #f96932;      /* Wolfram Orange */
-            --primary-hover: #d8501e;
-            --secondary-bg: #f9f9f9;       
-            --input-border: #cccccc;
-            --icon-color: #555555;
-            --section-title-color: #555555;
+            --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --accent-color: #00f2fe; /* Cyan Neon */
+            --accent-secondary: #4facfe; /* Blue Neon */
+            --text-main: #ffffff;
+            --text-muted: #aab2bd;
+            --card-bg: rgba(30, 30, 40, 0.8);
+            --user-msg-bg: rgba(79, 172, 254, 0.2);
+            --input-bg: rgba(0, 0, 0, 0.3);
+        }
 
-            /* Dark Mode Variables */
-            --bg-color-dark: #121212;
-            --text-color-dark: #e9e9e9;
-            --card-bg-dark: #1e1e1e;
-            --border-color-dark: #444444;
-            --secondary-bg-dark: #2c2c2c;
-            --input-border-dark: #555555;
-            --primary-color-dark: #1a73e8; /* Dark mode spinner color */
-            --primary-color-light-blue: #007bff; /* Light mode spinner color */
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: var(--bg-color-light);
-            color: var(--text-color-light);
-            transition: background-color 0.3s, color 0.3s;
         }
 
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: var(--bg-color-dark);
-                color: var(--text-color-dark);
-            }
+        /* 背景のアニメーション装飾 */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+        }
+        .orb-1 { width: 300px; height: 300px; background: #7f00ff; top: -50px; left: -50px; animation: float 10s infinite ease-in-out; }
+        .orb-2 { width: 400px; height: 400px; background: #00f2fe; bottom: -100px; right: -100px; animation: float 15s infinite ease-in-out reverse; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(30px, 50px); }
+            100% { transform: translate(0, 0); }
         }
 
-        .container {
+        /* Main Container */
+        .app-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             padding: 2rem 1rem;
-            box-sizing: border-box;
-            flex-grow: 1; /* フッターを下部に押しやる */
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Header */
-        .header {
+        header {
             text-align: center;
             margin-bottom: 2rem;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            box-shadow: var(--glass-shadow);
         }
-
-        .header h1 {
-            font-family: 'Merriweather', serif;
-            font-size: 2.2rem;
-            font-weight: 700;
+        header h1 {
             margin: 0;
-            color: var(--primary-color);
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, #fff, #a1c4fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
         }
-        .header p {
-            margin-top: 0.5rem;
+        header p {
+            margin: 0.5rem 0 0;
+            color: var(--text-muted);
             font-size: 0.9rem;
-            color: var(--icon-color);
-        }
-        @media (prefers-color-scheme: dark) {
-            .header p { color: #aaa; }
         }
 
-        /* Input Area */
-        .input-area {
-            position: relative;
-            display: flex;
-            width: 100%;
-            margin-bottom: 2.5rem;
-        }
-
-        #problem-input {
-            width: 100%;
-            padding: 1rem 3.5rem 1rem 1.2rem;
-            font-size: 1.1rem;
-            font-family: 'Roboto', sans-serif;
-            border: 1px solid var(--input-border);
-            border-radius: 12px; /* 丸みのある枠 */
-            background-color: var(--card-bg-light);
-            color: var(--text-color-light);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-        #problem-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(249, 105, 50, 0.2);
-        }
-        @media (prefers-color-scheme: dark) {
-            #problem-input {
-                background-color: var(--card-bg-dark);
-                border-color: var(--input-border-dark);
-                color: var(--text-color-dark);
-            }
-        }
-
-        #submit-btn {
-            position: absolute;
-            right: 6px;
-            top: 6px;
-            bottom: 6px;
-            width: 48px;
-            border: none;
-            border-radius: 8px; /* 入力欄に合わせて少し丸く */
-            background-color: transparent;
-            cursor: pointer;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-        }
-        #submit-btn:hover {
-            background-color: rgba(249, 105, 50, 0.1);
-        }
-        #submit-btn svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        /* Result Section */
-        .result-section {
+        /* Chat/Results Area */
+        #chat-timeline {
+            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            padding-bottom: 140px; /* 入力エリア分の余白 */
         }
 
-        .result-card {
-            background-color: var(--card-bg-light);
-            border: 1px solid var(--border-color-light);
-            border-radius: 12px; /* 丸みのある枠 */
-            padding: 0;
-            margin-bottom: 0; /* gapで制御 */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03); /* ほんのり影 */
+        /* Common Card Style */
+        .message-card {
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 100%;
+            position: relative;
             overflow: hidden;
         }
-        @media (prefers-color-scheme: dark) {
-            .result-card {
-                background-color: var(--card-bg-dark);
-                border-color: var(--border-color-dark);
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            }
-        }
 
-        .card-label {
-            background-color: var(--secondary-bg);
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--section-title-color);
-            text-transform: capitalize;
-            border-bottom: 1px solid var(--border-color-light);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        @media (prefers-color-scheme: dark) {
-            .card-label {
-                background-color: #252525;
-                border-bottom-color: var(--border-color-dark);
-                color: #aaa;
-            }
-        }
-
-        .result-content {
-            padding: 1.5rem;
-            font-size: 1.1rem;
-            line-height: 1.7;
-            /* 改行を強制的に反映させる設定 */
-            white-space: pre-wrap;
-            word-break: break-word;
-            overflow-x: auto; /* 数式が長すぎる場合のスクロール */
-        }
-
-        /* Action Buttons */
-        .steps-action-area {
-            padding: 0 1.5rem 1.5rem 1.5rem;
-        }
-
-        .steps-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1.2rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: white;
-            background-color: var(--primary-color);
-            border: 1px solid transparent;
-            border-radius: 20px; /* 丸いボタン */
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-        .steps-btn:hover {
-            background-color: var(--primary-hover);
-        }
-        .steps-btn:active {
-            transform: scale(0.98);
-        }
-        .steps-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+        /* User Message */
+        .user-message {
+            align-self: flex-end;
+            background: var(--user-msg-bg);
+            border-color: rgba(79, 172, 254, 0.4);
+            color: #fff;
+            max-width: 85%;
+            backdrop-filter: blur(5px);
         }
         
+        .user-message .uploaded-image-display {
+            display: block;
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* AI Message */
+        .ai-message {
+            align-self: flex-start;
+            background: var(--card-bg);
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .content-body {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #e0e6ed;
+            white-space: pre-wrap; /* 改行を反映 */
+        }
+
+        /* Input Area (Bottom Fixed) */
+        .input-wrapper {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 800px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Image Preview Popup */
+        #image-preview-container {
+            display: none; /* 初期非表示 */
+            background: rgba(20, 20, 30, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            width: fit-content;
+            position: relative;
+            animation: fadeIn 0.3s;
+        }
+        #preview-img {
+            height: 80px;
+            border-radius: 6px;
+            display: block;
+        }
+        #remove-img-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Input Bar */
+        .input-bar {
+            display: flex;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 0.5rem;
+            box-shadow: var(--glass-shadow);
+            transition: border-color 0.3s;
+        }
+        .input-bar:focus-within {
+            border-color: var(--accent-secondary);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        #file-upload-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0 1rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        #file-upload-btn:hover {
+            color: var(--accent-color);
+        }
+
+        #problem-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            padding: 0.8rem 0.5rem;
+        }
+        #problem-input:focus {
+            outline: none;
+        }
+        #problem-input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        #submit-btn {
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-color));
+            border: none;
+            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: #000;
+        }
+        #submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+        #submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Steps Button */
+        .steps-btn {
+            margin-top: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .steps-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        /* Steps Container */
         .steps-container {
             margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px dashed var(--border-color-light);
-            background-color: #fffbf8;
-            padding: 1.5rem;
+            background: rgba(0,0,0,0.3);
             border-radius: 8px;
-            /* 改行設定 */
-            white-space: pre-wrap; 
-            word-break: break-word;
-        }
-        @media (prefers-color-scheme: dark) {
-            .steps-container {
-                border-top-color: var(--border-color-dark);
-                background-color: #252220;
-            }
+            padding: 1rem;
+            border-left: 3px solid var(--accent-color);
         }
 
-        /* --- ローディングスピナー (ご指定のCSS) --- */
-        .loader-container {
-            display: none; /* 初期状態は非表示 */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            padding: 2rem 0;
-            gap: 20px;
-        }
-
+        /* Loader */
         .loader {
-            width: 60px; /* 少しサイズ調整 */
-            height: 60px;
-            animation: rotate 1s linear infinite;
-            transform-origin: center center;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .loader .path {
-            stroke: var(--primary-color-light-blue); /* ライトモード色 */
-            stroke-linecap: round;
-            stroke-dasharray: 89 150;
-            stroke-dashoffset: 0;
-            stroke-width: 2.5; /* 指定通り */
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
-        @media (prefers-color-scheme: dark) {
-            .loader .path {
-                stroke: var(--primary-color-dark); /* ダークモード色 */
-            }
-        }
-
-        @keyframes rotate {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        /* ------------------------------------------- */
-
-        /* About Section (目的) */
-        .about-section {
-            margin-top: 4rem;
-            padding: 2rem;
-            background-color: var(--card-bg-light);
-            border: 1px solid var(--border-color-light);
-            border-radius: 12px;
-            text-align: center;
-        }
-        @media (prefers-color-scheme: dark) {
-            .about-section {
-                background-color: var(--card-bg-dark);
-                border-color: var(--border-color-dark);
-            }
-        }
-        .about-section h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-        .about-section p {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--text-color-light);
-        }
-        @media (prefers-color-scheme: dark) {
-            .about-section p { color: var(--text-color-dark); }
-        }
-
-        .footer {
-            margin-top: 2rem;
-            padding-bottom: 1rem;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #888;
-        }
+        /* Hidden File Input */
+        #hidden-file-input { display: none; }
 
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header class="header">
-            <h1>AI Math Solver</h1>
-            <p>Powered by Computational Intelligence</p>
+    <!-- Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="app-container">
+        <header>
+            <h1>AI Math Solver <span style="font-size:0.6em; vertical-align:super; color:var(--accent-color);">Vision</span></h1>
+            <p>数式テキストまたは画像を解析して問題を解決します</p>
         </header>
 
-        <main>
-            <div class="input-area">
-                <input type="text" id="problem-input" placeholder="数式や問題をここに入力 (例: x^2 + 5x + 6 = 0)">
-                <button id="submit-btn" title="計算する">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+        <div id="chat-timeline">
+            <!-- ここにメッセージ（ユーザー入力・AI回答）が追加されます -->
+            <div class="message-card ai-message">
+                <div class="section-title">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/></svg>
+                    SYSTEM
+                </div>
+                <div class="content-body">
+                    ようこそ。数学の問題を入力するか、問題の画像をアップロードしてください。
+                    <br>論理的なステップで解説を行います。
+                </div>
+            </div>
+        </div>
+
+        <div class="input-wrapper">
+            <!-- Image Preview Area -->
+            <div id="image-preview-container">
+                <img id="preview-img" src="" alt="Preview">
+                <button id="remove-img-btn" title="画像を削除">×</button>
+            </div>
+
+            <!-- Input Controls -->
+            <div class="input-bar">
+                <input type="file" id="hidden-file-input" accept="image/*">
+                
+                <button id="file-upload-btn" title="画像をアップロード">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1v6zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2z"/>
+                        <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+                    </svg>
+                </button>
+
+                <input type="text" id="problem-input" placeholder="メッセージを入力...">
+                
+                <button id="submit-btn" title="送信">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
                     </svg>
                 </button>
             </div>
-
-            <!-- ローディングコンテナ -->
-            <div id="main-loader" class="loader-container">
-                <svg class="loader" viewBox="0 0 50 50">
-                    <circle class="path" cx="25" cy="25" r="20" fill="none"></circle>
-                </svg>
-                <div style="font-size: 0.9rem; color: #888;">計算中...</div>
-            </div>
-
-            <div id="results-container" class="result-section">
-                <!-- 結果カードがここに動的に追加されます -->
-            </div>
-
-            <!-- サイトの目的セクション -->
-            <div class="about-section">
-                <h2>このサイトについて</h2>
-                <p>
-                    このAI数学・算数ソルバーは、最新のAI技術を活用して、ユーザーが抱える数学や算数の疑問を瞬時に解決し、
-                    論理的なステップごとの解説を通じて学習をサポートすることを目的としています。<br>
-                    宿題の確認、独学の補助、あるいは数学的な興味の探求など、あらゆる学習シーンでご活用ください。
-                </p>
-            </div>
-        </main>
-        
-        <footer class="footer">
-            <p>AIの回答には間違いが含まれている場合があります。重要な計算には専門家の確認を推奨します。</p>
-        </footer>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const problemInput = document.getElementById('problem-input');
             const submitBtn = document.getElementById('submit-btn');
-            const resultsContainer = document.getElementById('results-container');
-            const mainLoader = document.getElementById('main-loader');
+            const chatTimeline = document.getElementById('chat-timeline');
+            
+            // Image Upload Elements
+            const fileUploadBtn = document.getElementById('file-upload-btn');
+            const hiddenFileInput = document.getElementById('hidden-file-input');
+            const previewContainer = document.getElementById('image-preview-container');
+            const previewImg = document.getElementById('preview-img');
+            const removeImgBtn = document.getElementById('remove-img-btn');
 
-            // --- Cloudflare WorkerのURL ---
-            // 実際の環境に合わせて設定してください
-            const WORKER_URL = 'https://math-solver-proxy.nden14800.workers.dev'; 
+            let currentImageBase64 = null;
 
-            // KaTeX Rendering Helper
+            // --- Cloudflare Worker URL (Backend Proxy) ---
+            // ※注意: 画像送信に対応したバックエンドが必要です。
+            // 現在のプロンプトではダミーのURLですが、実際にはここに画像を処理できるエンドポイントを指定します。
+            const WORKER_URL = 'https://math-solver-proxy.nden14800.workers.dev';
+
+            // --- Image Upload Handling ---
+            fileUploadBtn.addEventListener('click', () => {
+                hiddenFileInput.click();
+            });
+
+            hiddenFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        currentImageBase64 = evt.target.result; // Data URL including prefix
+                        previewImg.src = currentImageBase64;
+                        previewContainer.style.display = 'block';
+                        problemInput.focus();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            removeImgBtn.addEventListener('click', () => {
+                currentImageBase64 = null;
+                hiddenFileInput.value = ''; // Reset input
+                previewContainer.style.display = 'none';
+            });
+
+            // --- KaTeX Rendering Helper ---
             const renderMath = (element) => {
                 if (!window.renderMathInElement) return;
                 renderMathInElement(element, {
@@ -398,106 +454,104 @@
                 });
             };
 
-            // API Call
-            const callApiViaWorker = async (prompt) => {
-                if (!WORKER_URL) throw new Error('Worker URL未設定');
-                
+            // --- Scroll to Bottom Helper ---
+            const scrollToBottom = () => {
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
+            };
+
+            // --- API Call ---
+            const callApi = async (text, imageBase64) => {
+                // Image handling: split base64 prefix if needed
+                let imagePayload = null;
+                if (imageBase64) {
+                    // "data:image/png;base64,..." -> extract after comma
+                    const parts = imageBase64.split(',');
+                    if (parts.length > 1) {
+                        imagePayload = parts[1];
+                    }
+                }
+
+                // AI Prompt Construction
+                const systemPrompt = `あなたは高度な数学AIエンジンです。
+                ユーザー入力（テキストまたは画像）を解析し、以下の構造で回答してください。
+                1. "### 解答" セクションで明確な答えを提示。
+                2. 必要に応じて "### 解説", "### グラフの概形", "### 計算過程" などのセクションを追加。
+                3. 数式はLaTeX形式 ($...$) で記述。
+                4. 画像が渡された場合、その画像内の数式や幾何学問題を読み取って解いてください。
+                日本語で応答してください。`;
+
+                const payload = {
+                    prompt: systemPrompt + "\n\nユーザーの質問: " + text,
+                    image: imagePayload // Worker側でこれを処理するように実装されていると仮定
+                };
+
                 const response = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || `Error: ${response.status}`);
                 
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!text) throw new Error('AIからの応答が空でした。');
-                return text;
+                // Google Gemini / OpenAI 形式のレスポンス構造を想定してテキスト抽出
+                // (実際のWorkerのレスポンス形式に合わせて調整が必要かもしれません)
+                const content = data?.candidates?.[0]?.content?.parts?.[0]?.text || data?.choices?.[0]?.message?.content || data?.text;
+                
+                if (!content) throw new Error('AIからの応答が空でした。');
+                return content;
             };
 
-            // 結果カードを作成する関数
-            const createCard = (title, content, isMainResult = false) => {
-                const card = document.createElement('div');
-                card.className = 'result-card';
+            // --- Create UI Elements ---
+            const addUserMessage = (text, imgSrc) => {
+                const div = document.createElement('div');
+                div.className = 'message-card user-message';
                 
-                let iconSvg = '';
-                // タイトルに応じてアイコンを変える簡易ロジック
-                if (title.includes('入力') || title.includes('Input')) {
-                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/><path d="M4.5 3a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm0 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4z"/></svg>`;
-                } else if (title.includes('解答') || title.includes('結果') || title.includes('Result')) {
-                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/></svg>`;
-                } else if (title.includes('グラフ') || title.includes('Graph')) {
-                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-4zm-9 4a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-4z"/></svg>`;
-                } else {
-                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/></svg>`;
+                let contentHtml = `<div>${text.replace(/\n/g, '<br>')}</div>`;
+                if (imgSrc) {
+                    contentHtml += `<img src="${imgSrc}" class="uploaded-image-display" alt="Uploaded problem">`;
                 }
+                
+                div.innerHTML = contentHtml;
+                chatTimeline.appendChild(div);
+                renderMath(div);
+                scrollToBottom();
+            };
 
-                card.innerHTML = `
-                    <div class="card-label">
-                        ${iconSvg}
-                        ${title}
+            const addAiMessagePlaceholder = () => {
+                const div = document.createElement('div');
+                div.className = 'message-card ai-message';
+                div.id = 'loading-card';
+                div.innerHTML = `
+                    <div class="section-title">CALCULATING</div>
+                    <div style="display:flex; justify-content:center; padding:2rem;">
+                        <div class="loader"></div>
                     </div>
-                    <div class="result-content">${content}</div>
                 `;
-
-                // 解答カードの場合のみ、ステップごとの解説ボタンを追加
-                if (isMainResult) {
-                    const actionArea = document.createElement('div');
-                    actionArea.className = 'steps-action-area';
-                    actionArea.innerHTML = `
-                        <button class="steps-btn" id="show-steps-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ol" viewBox="0 0 16 16">
-                              <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
-                              <path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.321-.24 0-.414.168-.42.37h-.005l.005.004zM2.564 5h-.635V2.924h-.39V2.25h1.025V5z"/>
-                            </svg>
-                            AIによるステップごとの解説
-                        </button>
-                    `;
-                    card.appendChild(actionArea);
-                }
-                return card;
+                chatTimeline.appendChild(div);
+                scrollToBottom();
+                return div;
             };
 
-            const handleSubmission = async () => {
-                const problem = problemInput.value.trim();
-                if (!problem) return;
+            const parseAndDisplayAiResponse = (text, containerDiv) => {
+                containerDiv.innerHTML = ''; // ローディングをクリア
+                containerDiv.id = ''; // ID削除
 
-                resultsContainer.innerHTML = '';
-                
-                // ★★★ ユーザーの入力をそのまま表示するカードを即座に追加 ★★★
-                const inputCard = createCard('入力', problem);
-                resultsContainer.appendChild(inputCard);
-                // ユーザーが数式形式で入力した場合のためにレンダリングを実行
-                renderMath(inputCard);
+                const sections = text.split('### ').filter(s => s.trim() !== '');
 
-                // その下にローダーを表示
-                mainLoader.style.display = 'flex';
-
-                // Prompt: Wolfram Alphaのようにセクション分けして回答させる
-                // 既にユーザー入力は表示したので、AIには「解答」から始めさせる
-                const prompt = `あなたは高度な数学AIエンジンです。Wolfram Alphaのように振る舞ってください。
-                ユーザーの入力: ${problem}
-
-                以下のフォーマットに従って回答を生成してください。必ず改行を入れて見やすくしてください。
-                1. 各セクションは "### セクションタイトル" という形式で開始してください。
-                2. 最初のセクションは必ず "### AIによる解答" とし、明確な答えを提示してください。(入力の解釈は不要です)
-                3. その後、入力の内容に応じて適切な追加セクション（例：### 別の形式, ### グラフの概形(言葉で説明), ### 微分, ### 積分, ### 数直線上の表示, ### 展開, ### 因数分解 など）を自動的に生成してください。項目数は多めに、問題に合わせて柔軟に変えてください。
-                4. 数式は必ず $...$ または $$...$$ で囲んでください。
-                5. 説明は日本語で行ってください。
-                6. 必ず改行を入れて、テキストが詰まりすぎないようにしてください。`;
-
-                try {
-                    const fullText = await callApiViaWorker(prompt);
-                    mainLoader.style.display = 'none';
-
-                    // "### " でテキストを分割して各カードを生成
-                    const sections = fullText.split('### ').filter(s => s.trim() !== '');
-
-                    sections.forEach((section, index) => {
-                        // 最初の行がタイトル、残りがコンテンツ
+                if (sections.length === 0) {
+                    // セクション分けがない場合のフォールバック
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'content-body';
+                    contentDiv.innerText = text;
+                    containerDiv.appendChild(contentDiv);
+                } else {
+                    sections.forEach(section => {
                         const firstLineEnd = section.indexOf('\n');
-                        let title = '情報';
+                        let title = 'Result';
                         let content = section;
 
                         if (firstLineEnd !== -1) {
@@ -507,77 +561,112 @@
                             title = section.trim();
                             content = '';
                         }
-                        
-                        // もしAIが誤って「入力」セクションを作った場合はスキップする(重複防止)
-                        if (title.includes('入力') || title.includes('Input')) return;
 
-                        // 解答セクションかどうか判定
-                        const isMainResult = title.includes('解答') || title.includes('Result');
-                        
-                        const card = createCard(title, content, isMainResult);
-                        resultsContainer.appendChild(card);
-                        renderMath(card);
+                        // 各セクションのHTML構築
+                        const sectionWrapper = document.createElement('div');
+                        sectionWrapper.style.marginBottom = '1.5rem';
 
-                        // 解答カードの場合、イベントリスナーを設定
-                        if (isMainResult) {
-                            const btn = card.querySelector('#show-steps-btn');
-                            if(btn) {
-                                btn.addEventListener('click', (e) => getStepByStep(e.target, problem, content));
-                            }
+                        const titleDiv = document.createElement('div');
+                        titleDiv.className = 'section-title';
+                        titleDiv.innerHTML = `
+                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="margin-right:5px;">
+                                <circle cx="8" cy="8" r="8"/>
+                            </svg> ${title}
+                        `;
+
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'content-body';
+                        contentDiv.innerText = content;
+
+                        sectionWrapper.appendChild(titleDiv);
+                        sectionWrapper.appendChild(contentDiv);
+                        containerDiv.appendChild(sectionWrapper);
+
+                        // 解説ボタンの追加 (解答セクションの場合)
+                        if (title.includes('解答') || title.includes('Answer') || title.includes('Result')) {
+                            const stepsBtn = document.createElement('button');
+                            stepsBtn.className = 'steps-btn';
+                            stepsBtn.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M4 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm10-4a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm-6 3a1 1 0 1 1 2 0 1 1 0 0 1-2 0z"/>
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8z"/>
+                                </svg>
+                                ステップごとの解説を見る
+                            `;
+                            stepsBtn.addEventListener('click', (e) => getStepByStep(e.target, title, content));
+                            sectionWrapper.appendChild(stepsBtn);
                         }
                     });
-
-                } catch (error) {
-                    mainLoader.style.display = 'none';
-                    resultsContainer.innerHTML += `<div class="result-card" style="padding:1rem; color:red;">エラーが発生しました: ${error.message}</div>`;
                 }
+                
+                renderMath(containerDiv);
+                scrollToBottom();
             };
 
-            const getStepByStep = async (btnElement, problem, initialAnswer) => {
-                const button = btnElement.closest('button');
-                button.disabled = true;
-                // ボタン内のローディングスピナー（小さいサイズ）
-                button.innerHTML = `
-                    <svg class="loader" style="width:16px; height:16px; margin-right:8px; animation:rotate 1s linear infinite;" viewBox="0 0 50 50">
-                        <circle class="path" cx="25" cy="25" r="20" fill="none" stroke="#fff" stroke-width="4"></circle>
-                    </svg>
-                    解説を生成中...`;
+            // --- Step by Step Logic ---
+            const getStepByStep = async (btn, contextTitle, contextContent) => {
+                const originalBtnText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = `<div class="loader" style="width:14px; height:14px; border-width:2px; display:inline-block; vertical-align:middle; margin-right:5px;"></div> 生成中...`;
 
-                const prompt = `以下の質問と解答について、論理的なステップごとの詳しい解説を作成してください。
-                ステップごとに番号を振り（例: Step 1, Step 2...）、何が行われたかを明確に説明してください。
-                文章の途中には適宜改行を入れて、読みやすくしてください。
+                const prompt = `以下の内容について、初心者にもわかるように詳細なステップごとの解説（Step 1, Step 2...）を作成してください。
                 
-                質問: ${problem}
-                解答: ${initialAnswer}
+                項目: ${contextTitle}
+                内容: ${contextContent}
                 
-                解説は日本語で、数式はKaTeX形式で出力してください。`;
+                数式はLaTeXで、説明は日本語で行ってください。`;
 
                 try {
-                    const stepsText = await callApiViaWorker(prompt);
+                    const stepsText = await callApi(prompt, null); // 画像は送らずコンテキストのみ送る
                     
                     const stepsContainer = document.createElement('div');
                     stepsContainer.className = 'steps-container';
-                    stepsContainer.innerHTML = `
-                        <div style="font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; color:var(--primary-color);">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
-                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                              <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
-                            </svg>
-                            AIによるステップごとの解説
-                        </div>
-                        <div class="steps-content">${stepsText}</div>
-                    `;
+                    stepsContainer.className = 'content-body steps-container';
+                    stepsContainer.innerText = stepsText;
 
-                    const actionArea = button.parentElement;
-                    actionArea.appendChild(stepsContainer);
-                    button.style.display = 'none';
+                    btn.parentNode.appendChild(stepsContainer);
+                    btn.style.display = 'none'; // ボタンを隠す
 
                     renderMath(stepsContainer);
+                    scrollToBottom();
 
+                } catch (e) {
+                    alert('解説の生成に失敗しました');
+                    btn.innerHTML = originalBtnText;
+                    btn.disabled = false;
+                }
+            };
+
+            // --- Main Submit Handler ---
+            const handleSubmission = async () => {
+                const text = problemInput.value.trim();
+                const hasImage = !!currentImageBase64;
+
+                if (!text && !hasImage) return;
+
+                // UI更新: ユーザーメッセージ追加
+                addUserMessage(text || "(画像のみ送信)", currentImageBase64);
+
+                // 入力クリア
+                problemInput.value = '';
+                
+                // 画像状態のリセット (プレビューは残さず消す)
+                const sentImage = currentImageBase64;
+                currentImageBase64 = null;
+                hiddenFileInput.value = '';
+                previewContainer.style.display = 'none';
+
+                // ローディング表示
+                const loadingCard = addAiMessagePlaceholder();
+
+                try {
+                    const resultText = await callApi(text, sentImage);
+                    parseAndDisplayAiResponse(resultText, loadingCard);
                 } catch (error) {
-                    alert(`解説の生成に失敗しました: ${error.message}`);
-                    button.disabled = false;
-                    button.innerHTML = `再試行`;
+                    loadingCard.innerHTML = `
+                        <div class="section-title" style="color:#ff4757;">ERROR</div>
+                        <div class="content-body">エラーが発生しました: ${error.message}</div>
+                    `;
                 }
             };
 
