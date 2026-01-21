@@ -2,473 +2,389 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Math Solver</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI数学・算数ソルバー</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <!-- KaTeX -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <!-- KaTeX: v0.16.22 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
 
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            --accent-color: #00f2fe; /* Cyan Neon */
-            --accent-secondary: #4facfe; /* Blue Neon */
-            --wolfram-color: #ff9f43; /* Orange for Wolfram mode */
-            --text-main: #ffffff;
-            --text-muted: #aab2bd;
-            --card-bg: rgba(30, 30, 40, 0.8);
-            --user-msg-bg: rgba(79, 172, 254, 0.2);
-        }
+            /* Wolfram Alpha Inspired Colors */
+            --bg-color-light: #ffffff;
+            --text-color-light: #333333;
+            --card-bg-light: #ffffff;
+            --border-color-light: #e0e0e0;
+            --primary-color: #f96932;      /* Wolfram Orange */
+            --primary-hover: #d8501e;
+            --secondary-bg: #f9f9f9;       
+            --input-border: #cccccc;
+            --icon-color: #555555;
+            --section-title-color: #555555;
 
-        * {
-            box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
+            /* Dark Mode Variables */
+            --bg-color-dark: #121212;
+            --text-color-dark: #e9e9e9;
+            --card-bg-dark: #1e1e1e;
+            --border-color-dark: #444444;
+            --secondary-bg-dark: #2c2c2c;
+            --input-border-dark: #555555;
+            --primary-color-dark: #1a73e8; /* Dark mode spinner color */
+            --primary-color-light-blue: #007bff; /* Light mode spinner color */
         }
 
         body {
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed;
-            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        /* 背景のアニメーション装飾 */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            opacity: 0.6;
-        }
-        .orb-1 { width: 300px; height: 300px; background: #7f00ff; top: -50px; left: -50px; animation: float 10s infinite ease-in-out; }
-        .orb-2 { width: 400px; height: 400px; background: #00f2fe; bottom: -100px; right: -100px; animation: float 15s infinite ease-in-out reverse; }
-
-        @keyframes float {
-            0% { transform: translate(0, 0); }
-            50% { transform: translate(30px, 50px); }
-            100% { transform: translate(0, 0); }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: var(--bg-color-dark);
+                color: var(--text-color-dark);
+            }
         }
 
-        /* Main Container */
-        .app-container {
+        .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 800px;
             padding: 2rem 1rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            box-sizing: border-box;
+            flex-grow: 1; /* フッターを下部に押しやる */
         }
 
         /* Header */
-        header {
+        .header {
             text-align: center;
             margin-bottom: 2rem;
-            padding: 1rem;
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg);
-            box-shadow: var(--glass-shadow);
         }
-        header h1 {
+
+        .header h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
             margin: 0;
-            font-size: 1.8rem;
-            background: linear-gradient(90deg, #fff, #a1c4fd);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
+            color: var(--primary-color);
         }
-        header p {
-            margin: 0.5rem 0 0;
-            color: var(--text-muted);
+        .header p {
+            margin-top: 0.5rem;
             font-size: 0.9rem;
+            color: var(--icon-color);
+        }
+        @media (prefers-color-scheme: dark) {
+            .header p { color: #aaa; }
         }
 
-        /* Chat/Results Area */
-        #chat-timeline {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            padding-bottom: 160px; /* 入力エリア分の余白 */
-        }
-
-        /* Common Card Style */
-        .message-card {
-            padding: 1.5rem;
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            max-width: 100%;
+        /* Input Area */
+        .input-area {
             position: relative;
-            overflow: hidden;
-        }
-
-        /* User Message */
-        .user-message {
-            align-self: flex-end;
-            background: var(--user-msg-bg);
-            border-color: rgba(79, 172, 254, 0.4);
-            color: #fff;
-            max-width: 85%;
-            backdrop-filter: blur(5px);
-        }
-
-        /* AI Message */
-        .ai-message {
-            align-self: flex-start;
-            background: var(--card-bg);
+            display: flex;
             width: 100%;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-
-        .section-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--accent-color);
-            margin-bottom: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 0.5rem;
-        }
-
-        .content-body {
-            font-size: 1rem;
-            line-height: 1.8;
-            color: #e0e6ed;
-            white-space: pre-wrap;
-        }
-
-        /* Input Wrapper (Bottom Fixed) */
-        .input-wrapper {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 800px;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        /* Model Selector (Custom Dropdown) */
-        .model-selector-container {
-            position: relative;
-            align-self: flex-start;
-            width: 200px;
-        }
-
-        .model-select-btn {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            color: var(--text-main);
-            padding: 0.6rem 1rem;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-            box-shadow: var(--glass-shadow);
-        }
-        .model-select-btn:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .model-select-btn i {
-            margin-right: 8px;
-        }
-
-        .model-dropdown-menu {
-            position: absolute;
-            bottom: 110%; /* ボタンの上に表示 */
-            left: 0;
-            width: 100%;
-            background: rgba(20, 20, 30, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 5px;
-            display: none;
-            flex-direction: column;
-            gap: 2px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            animation: fadeIn 0.2s;
-            z-index: 101;
-        }
-        .model-dropdown-menu.show {
-            display: flex;
-        }
-
-        .model-option {
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            color: #ccc;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s, color 0.2s;
-        }
-        .model-option:hover {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-        }
-        .model-option.active {
-            background: rgba(0, 242, 254, 0.15); /* Accent color hint */
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-        .model-option[data-value="wolfram"].active {
-            background: rgba(255, 159, 67, 0.15);
-            color: var(--wolfram-color);
-        }
-
-        /* Input Bar */
-        .input-bar {
-            display: flex;
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 0.5rem;
-            box-shadow: var(--glass-shadow);
-            transition: border-color 0.3s;
-        }
-        .input-bar:focus-within {
-            border-color: var(--accent-secondary);
-            background: rgba(0, 0, 0, 0.4);
+            margin-bottom: 2.5rem;
         }
 
         #problem-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 1rem;
-            font-family: 'Inter', sans-serif;
-            padding: 0.8rem 1rem;
+            width: 100%;
+            padding: 1rem 3.5rem 1rem 1.2rem;
+            font-size: 1.1rem;
+            font-family: 'Roboto', sans-serif;
+            border: 1px solid var(--input-border);
+            border-radius: 12px; /* 丸みのある枠 */
+            background-color: var(--card-bg-light);
+            color: var(--text-color-light);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
-        #problem-input:focus { outline: none; }
-        #problem-input::placeholder { color: rgba(255,255,255,0.4); }
+        #problem-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(249, 105, 50, 0.2);
+        }
+        @media (prefers-color-scheme: dark) {
+            #problem-input {
+                background-color: var(--card-bg-dark);
+                border-color: var(--input-border-dark);
+                color: var(--text-color-dark);
+            }
+        }
 
         #submit-btn {
-            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-color));
-            border: none;
-            border-radius: 12px;
+            position: absolute;
+            right: 6px;
+            top: 6px;
+            bottom: 6px;
             width: 48px;
-            height: 48px;
+            border: none;
+            border-radius: 8px; /* 入力欄に合わせて少し丸く */
+            background-color: transparent;
+            cursor: pointer;
+            color: var(--primary-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            color: #000;
+            transition: background-color 0.2s;
         }
         #submit-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px var(--accent-color);
+            background-color: rgba(249, 105, 50, 0.1);
+        }
+        #submit-btn svg {
+            width: 24px;
+            height: 24px;
         }
 
-        /* Steps Button */
-        .steps-btn {
-            margin-top: 1rem;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid var(--accent-color);
-            color: var(--accent-color);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
+        /* Result Section */
+        .result-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .result-card {
+            background-color: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 12px; /* 丸みのある枠 */
+            padding: 0;
+            margin-bottom: 0; /* gapで制御 */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); /* ほんのり影 */
+            overflow: hidden;
+        }
+        @media (prefers-color-scheme: dark) {
+            .result-card {
+                background-color: var(--card-bg-dark);
+                border-color: var(--border-color-dark);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+        }
+
+        .card-label {
+            background-color: var(--secondary-bg);
+            padding: 0.6rem 1.2rem;
             font-size: 0.9rem;
-            transition: all 0.3s;
+            font-weight: 700;
+            color: var(--section-title-color);
+            text-transform: capitalize;
+            border-bottom: 1px solid var(--border-color-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        @media (prefers-color-scheme: dark) {
+            .card-label {
+                background-color: #252525;
+                border-bottom-color: var(--border-color-dark);
+                color: #aaa;
+            }
+        }
+
+        .result-content {
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            /* 改行を強制的に反映させる設定 */
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-x: auto; /* 数式が長すぎる場合のスクロール */
+        }
+
+        /* Action Buttons */
+        .steps-action-area {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+
+        .steps-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: white;
+            background-color: var(--primary-color);
+            border: 1px solid transparent;
+            border-radius: 20px; /* 丸いボタン */
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
         }
         .steps-btn:hover {
-            background: var(--accent-color);
-            color: #000;
+            background-color: var(--primary-hover);
         }
-
-        /* ローディングスピナー (指定されたスタイル) */
-        .loader-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
+        .steps-btn:active {
+            transform: scale(0.98);
+        }
+        .steps-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
         
+        .steps-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border-color-light);
+            background-color: #fffbf8;
+            padding: 1.5rem;
+            border-radius: 8px;
+            /* 改行設定 */
+            white-space: pre-wrap; 
+            word-break: break-word;
+        }
+        @media (prefers-color-scheme: dark) {
+            .steps-container {
+                border-top-color: var(--border-color-dark);
+                background-color: #252220;
+            }
+        }
+
+        /* --- ローディングスピナー (ご指定のCSS) --- */
+        .loader-container {
+            display: none; /* 初期状態は非表示 */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 2rem 0;
+            gap: 20px;
+        }
+
         .loader {
-            width: 60px; /* 少し小さめに調整 */
+            width: 60px; /* 少しサイズ調整 */
             height: 60px;
             animation: rotate 1s linear infinite;
             transform-origin: center center;
         }
 
         .loader .path {
-            stroke: #ffffff; /* 色は白 */
+            stroke: var(--primary-color-light-blue); /* ライトモード色 */
             stroke-linecap: round;
             stroke-dasharray: 89 150;
             stroke-dashoffset: 0;
-            stroke-width: 2.5; /* 指定の太さ */
+            stroke-width: 2.5; /* 指定通り */
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .loader .path {
+                stroke: var(--primary-color-dark); /* ダークモード色 */
+            }
         }
 
         @keyframes rotate {
-            100% { transform: rotate(360deg); }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        /* ------------------------------------------- */
+
+        /* About Section (目的) */
+        .about-section {
+            margin-top: 4rem;
+            padding: 2rem;
+            background-color: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 12px;
+            text-align: center;
+        }
+        @media (prefers-color-scheme: dark) {
+            .about-section {
+                background-color: var(--card-bg-dark);
+                border-color: var(--border-color-dark);
+            }
+        }
+        .about-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        .about-section p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-color-light);
+        }
+        @media (prefers-color-scheme: dark) {
+            .about-section p { color: var(--text-color-dark); }
         }
 
-        /* Animations & Scrollbar */
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        .footer {
+            margin-top: 2rem;
+            padding-bottom: 1rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+        }
 
     </style>
 </head>
 <body>
 
-    <!-- Background Orbs -->
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-
-    <div class="app-container">
-        <header>
+    <div class="container">
+        <header class="header">
             <h1>AI Math Solver</h1>
-            <p>計算知能による数式・問題解決</p>
+            <p>Powered by Computational Intelligence</p>
         </header>
 
-        <div id="chat-timeline">
-            <!-- 初期メッセージ -->
-            <div class="message-card ai-message">
-                <div class="section-title">
-                    <i class="bi bi-robot"></i> SYSTEM
-                </div>
-                <div class="content-body">
-                    ようこそ。数学の問題を入力してください。
-                    <br>使用するモデルを選択し、解決のアプローチを変更できます。
-                </div>
-            </div>
-        </div>
-
-        <div class="input-wrapper">
-            <!-- Model Selector -->
-            <div class="model-selector-container">
-                <button class="model-select-btn" id="model-btn">
-                    <span id="selected-model-text">
-                        <i class="bi bi-lightning-charge-fill" style="color:var(--accent-color)"></i> Gemini 3 Flash
-                    </span>
-                    <i class="bi bi-chevron-up"></i>
-                </button>
-                <div class="model-dropdown-menu" id="model-menu">
-                    <div class="model-option active" data-value="gemini">
-                        <i class="bi bi-lightning-charge-fill"></i> Gemini 3 Flash
-                    </div>
-                    <div class="model-option" data-value="wolfram">
-                        <i class="bi bi-calculator-fill"></i> Wolfram Logic
-                    </div>
-                </div>
-            </div>
-
-            <!-- Input Bar -->
-            <div class="input-bar">
-                <input type="text" id="problem-input" placeholder="数式や問題を入力 (例: int x^2 dx)">
-                <button id="submit-btn" title="送信">
-                    <i class="bi bi-arrow-up" style="font-size: 1.2rem;"></i>
+        <main>
+            <div class="input-area">
+                <input type="text" id="problem-input" placeholder="数式や問題をここに入力 (例: x^2 + 5x + 6 = 0)">
+                <button id="submit-btn" title="計算する">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                    </svg>
                 </button>
             </div>
-        </div>
+
+            <!-- ローディングコンテナ -->
+            <div id="main-loader" class="loader-container">
+                <svg class="loader" viewBox="0 0 50 50">
+                    <circle class="path" cx="25" cy="25" r="20" fill="none"></circle>
+                </svg>
+                <div style="font-size: 0.9rem; color: #888;">計算中...</div>
+            </div>
+
+            <div id="results-container" class="result-section">
+                <!-- 結果カードがここに動的に追加されます -->
+            </div>
+
+            <!-- サイトの目的セクション -->
+            <div class="about-section">
+                <h2>このサイトについて</h2>
+                <p>
+                    このAI数学・算数ソルバーは、最新のAI技術を活用して、ユーザーが抱える数学や算数の疑問を瞬時に解決し、
+                    論理的なステップごとの解説を通じて学習をサポートすることを目的としています。<br>
+                    宿題の確認、独学の補助、あるいは数学的な興味の探求など、あらゆる学習シーンでご活用ください。
+                </p>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>AIの回答には間違いが含まれている場合があります。重要な計算には専門家の確認を推奨します。</p>
+        </footer>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const problemInput = document.getElementById('problem-input');
             const submitBtn = document.getElementById('submit-btn');
-            const chatTimeline = document.getElementById('chat-timeline');
-            
-            // Model Selector Elements
-            const modelBtn = document.getElementById('model-btn');
-            const modelMenu = document.getElementById('model-menu');
-            const modelOptions = document.querySelectorAll('.model-option');
-            const selectedModelText = document.getElementById('selected-model-text');
-            
-            let currentModel = 'gemini'; // Default
+            const resultsContainer = document.getElementById('results-container');
+            const mainLoader = document.getElementById('main-loader');
 
-            // Worker URL
-            const WORKER_URL = 'https://math-solver-proxy.nden14800.workers.dev';
+            // --- Cloudflare WorkerのURL ---
+            // 実際の環境に合わせて設定してください
+            const WORKER_URL = 'https://math-solver-proxy.nden14800.workers.dev'; 
 
-            // --- Model Selector Logic ---
-            modelBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                modelMenu.classList.toggle('show');
-                const icon = modelBtn.querySelector('.bi-chevron-up');
-                if (modelMenu.classList.contains('show')) {
-                    icon.style.transform = 'rotate(180deg)';
-                } else {
-                    icon.style.transform = 'rotate(0deg)';
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!modelBtn.contains(e.target)) {
-                    modelMenu.classList.remove('show');
-                    modelBtn.querySelector('.bi-chevron-up').style.transform = 'rotate(0deg)';
-                }
-            });
-
-            modelOptions.forEach(opt => {
-                opt.addEventListener('click', () => {
-                    currentModel = opt.getAttribute('data-value');
-                    
-                    // Update UI text and icon
-                    const iconClass = opt.querySelector('i').className;
-                    const text = opt.innerText;
-                    
-                    // Set color based on model
-                    const iconColor = currentModel === 'wolfram' ? 'var(--wolfram-color)' : 'var(--accent-color)';
-                    
-                    selectedModelText.innerHTML = `<i class="${iconClass}" style="color:${iconColor}"></i> ${text}`;
-                    
-                    // Update active class
-                    modelOptions.forEach(o => o.classList.remove('active'));
-                    opt.classList.add('active');
-                    
-                    modelMenu.classList.remove('show');
-                });
-            });
-
-            // --- KaTeX Rendering Helper ---
+            // KaTeX Rendering Helper
             const renderMath = (element) => {
                 if (!window.renderMathInElement) return;
                 renderMathInElement(element, {
@@ -482,105 +398,106 @@
                 });
             };
 
-            // --- Scroll to Bottom Helper ---
-            const scrollToBottom = () => {
-                window.scrollTo({
-                    top: document.body.scrollHeight,
-                    behavior: 'smooth'
-                });
-            };
-
-            // --- API Call ---
-            const callApi = async (text, modelType) => {
-                // モデルに応じたシステムプロンプトの切り替え
-                let systemPrompt = "";
-
-                if (modelType === 'wolfram') {
-                    // WolframAlphaのようなロジックを模倣するプロンプト
-                    systemPrompt = `あなたはWolfram Alphaのような「計算知能エンジン」です。
-                    ユーザーの入力に対して、感情や余計な会話を排除し、事実と計算結果のみを構造化して出力してください。
-                    
-                    以下のルールを厳守してください：
-                    1. 出力はセクション分けし、"### 結果", "### 別の形式", "### 数直線", "### 微分/積分" などのタイトルを使用してください。
-                    2. 回答は極めて簡潔に、データ中心にしてください。「～だと思います」や「解説します」などの前置きは不要です。
-                    3. 数式は必ずLaTeX形式 ($...$) で出力してください。
-                    4. グラフが必要な場合は、グラフの形状を言葉で正確に描写するセクションを作ってください。
-                    
-                    ユーザーの入力: ${text}`;
-                } else {
-                    // Gemini 3 Flash (AI家庭教師モード)
-                    systemPrompt = `あなたは高度な数学AIアシスタント「Gemini 3 Flash」です。
-                    ユーザーの数学的な質問に対して、丁寧かつ論理的に回答してください。
-                    
-                    以下の構造で回答してください：
-                    1. "### 解答" セクションで明確な答えを提示。
-                    2. その後、適切なセクション（例：### 解説, ### 計算過程, ### グラフの概形）を生成。
-                    3. 初心者にもわかりやすい言葉遣いを心がけてください。
-                    4. 数式はLaTeX形式 ($...$) で記述。
-                    
-                    ユーザーの質問: ${text}`;
-                }
-
-                const payload = {
-                    prompt: systemPrompt
-                };
-
+            // API Call
+            const callApiViaWorker = async (prompt) => {
+                if (!WORKER_URL) throw new Error('Worker URL未設定');
+                
                 const response = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ prompt: prompt })
                 });
 
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || `Error: ${response.status}`);
                 
-                const content = data?.candidates?.[0]?.content?.parts?.[0]?.text || data?.choices?.[0]?.message?.content || data?.text;
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) throw new Error('AIからの応答が空でした。');
+                return text;
+            };
+
+            // 結果カードを作成する関数
+            const createCard = (title, content, isMainResult = false) => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
                 
-                if (!content) throw new Error('AIからの応答が空でした。');
-                return content;
-            };
-
-            // --- UI Operations ---
-            const addUserMessage = (text) => {
-                const div = document.createElement('div');
-                div.className = 'message-card user-message';
-                div.innerHTML = `<div>${text.replace(/\n/g, '<br>')}</div>`;
-                chatTimeline.appendChild(div);
-                renderMath(div);
-                scrollToBottom();
-            };
-
-            const addAiMessagePlaceholder = () => {
-                const div = document.createElement('div');
-                div.className = 'message-card ai-message';
-                // 指定されたSVGスピナー (テキストなし、進捗バーなし)
-                div.innerHTML = `
-                    <div class="section-title">CALCULATING</div>
-                    <div class="loader-container">
-                        <svg class="loader" viewBox="0 0 50 50">
-                            <circle class="path" cx="25" cy="25" r="20" fill="none"></circle>
-                        </svg>
-                    </div>
-                `;
-                chatTimeline.appendChild(div);
-                scrollToBottom();
-                return div;
-            };
-
-            const parseAndDisplayAiResponse = (text, containerDiv) => {
-                containerDiv.innerHTML = ''; 
-
-                const sections = text.split('### ').filter(s => s.trim() !== '');
-
-                if (sections.length === 0) {
-                    const contentDiv = document.createElement('div');
-                    contentDiv.className = 'content-body';
-                    contentDiv.innerText = text;
-                    containerDiv.appendChild(contentDiv);
+                let iconSvg = '';
+                // タイトルに応じてアイコンを変える簡易ロジック
+                if (title.includes('入力') || title.includes('Input')) {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/><path d="M4.5 3a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm0 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4z"/></svg>`;
+                } else if (title.includes('解答') || title.includes('結果') || title.includes('Result')) {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/></svg>`;
+                } else if (title.includes('グラフ') || title.includes('Graph')) {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-4zm-9 4a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-4z"/></svg>`;
                 } else {
-                    sections.forEach(section => {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/></svg>`;
+                }
+
+                card.innerHTML = `
+                    <div class="card-label">
+                        ${iconSvg}
+                        ${title}
+                    </div>
+                    <div class="result-content">${content}</div>
+                `;
+
+                // 解答カードの場合のみ、ステップごとの解説ボタンを追加
+                if (isMainResult) {
+                    const actionArea = document.createElement('div');
+                    actionArea.className = 'steps-action-area';
+                    actionArea.innerHTML = `
+                        <button class="steps-btn" id="show-steps-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ol" viewBox="0 0 16 16">
+                              <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
+                              <path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.321-.24 0-.414.168-.42.37h-.005l.005.004zM2.564 5h-.635V2.924h-.39V2.25h1.025V5z"/>
+                            </svg>
+                            AIによるステップごとの解説
+                        </button>
+                    `;
+                    card.appendChild(actionArea);
+                }
+                return card;
+            };
+
+            const handleSubmission = async () => {
+                const problem = problemInput.value.trim();
+                if (!problem) return;
+
+                resultsContainer.innerHTML = '';
+                
+                // ★★★ ユーザーの入力をそのまま表示するカードを即座に追加 ★★★
+                const inputCard = createCard('入力', problem);
+                resultsContainer.appendChild(inputCard);
+                // ユーザーが数式形式で入力した場合のためにレンダリングを実行
+                renderMath(inputCard);
+
+                // その下にローダーを表示
+                mainLoader.style.display = 'flex';
+
+                // Prompt: Wolfram Alphaのようにセクション分けして回答させる
+                // 既にユーザー入力は表示したので、AIには「解答」から始めさせる
+                const prompt = `あなたは高度な数学AIエンジンです。Wolfram Alphaのように振る舞ってください。
+                ユーザーの入力: ${problem}
+
+                以下のフォーマットに従って回答を生成してください。必ず改行を入れて見やすくしてください。
+                1. 各セクションは "### セクションタイトル" という形式で開始してください。
+                2. 最初のセクションは必ず "### AIによる解答" とし、明確な答えを提示してください。(入力の解釈は不要です)
+                3. その後、入力の内容に応じて適切な追加セクション（例：### 別の形式, ### グラフの概形(言葉で説明), ### 微分, ### 積分, ### 数直線上の表示, ### 展開, ### 因数分解 など）を自動的に生成してください。項目数は多めに、問題に合わせて柔軟に変えてください。
+                4. 数式は必ず $...$ または $$...$$ で囲んでください。
+                5. 説明は日本語で行ってください。
+                6. 必ず改行を入れて、テキストが詰まりすぎないようにしてください。`;
+
+                try {
+                    const fullText = await callApiViaWorker(prompt);
+                    mainLoader.style.display = 'none';
+
+                    // "### " でテキストを分割して各カードを生成
+                    const sections = fullText.split('### ').filter(s => s.trim() !== '');
+
+                    sections.forEach((section, index) => {
+                        // 最初の行がタイトル、残りがコンテンツ
                         const firstLineEnd = section.indexOf('\n');
-                        let title = 'Result';
+                        let title = '情報';
                         let content = section;
 
                         if (firstLineEnd !== -1) {
@@ -590,96 +507,77 @@
                             title = section.trim();
                             content = '';
                         }
+                        
+                        // もしAIが誤って「入力」セクションを作った場合はスキップする(重複防止)
+                        if (title.includes('入力') || title.includes('Input')) return;
 
-                        // セクションごとのコンテナ
-                        const sectionWrapper = document.createElement('div');
-                        sectionWrapper.style.marginBottom = '1.5rem';
+                        // 解答セクションかどうか判定
+                        const isMainResult = title.includes('解答') || title.includes('Result');
+                        
+                        const card = createCard(title, content, isMainResult);
+                        resultsContainer.appendChild(card);
+                        renderMath(card);
 
-                        const titleDiv = document.createElement('div');
-                        titleDiv.className = 'section-title';
-                        titleDiv.innerHTML = `
-                            <i class="bi bi-circle-fill" style="font-size: 0.6em; margin-right:5px;"></i> ${title}
-                        `;
-
-                        const contentDiv = document.createElement('div');
-                        contentDiv.className = 'content-body';
-                        contentDiv.innerText = content;
-
-                        sectionWrapper.appendChild(titleDiv);
-                        sectionWrapper.appendChild(contentDiv);
-                        containerDiv.appendChild(sectionWrapper);
-
-                        // 解説ボタンの追加 (Geminiモードの解答セクションの場合のみ表示)
-                        if (currentModel === 'gemini' && (title.includes('解答') || title.includes('Answer') || title.includes('Result'))) {
-                            const stepsBtn = document.createElement('button');
-                            stepsBtn.className = 'steps-btn';
-                            stepsBtn.innerHTML = `
-                                <i class="bi bi-list-ol"></i>
-                                ステップごとの解説を見る
-                            `;
-                            stepsBtn.addEventListener('click', (e) => getStepByStep(e.target, title, content));
-                            sectionWrapper.appendChild(stepsBtn);
+                        // 解答カードの場合、イベントリスナーを設定
+                        if (isMainResult) {
+                            const btn = card.querySelector('#show-steps-btn');
+                            if(btn) {
+                                btn.addEventListener('click', (e) => getStepByStep(e.target, problem, content));
+                            }
                         }
                     });
+
+                } catch (error) {
+                    mainLoader.style.display = 'none';
+                    resultsContainer.innerHTML += `<div class="result-card" style="padding:1rem; color:red;">エラーが発生しました: ${error.message}</div>`;
                 }
-                
-                renderMath(containerDiv);
-                scrollToBottom();
             };
 
-            const getStepByStep = async (btn, contextTitle, contextContent) => {
-                const originalBtnText = btn.innerHTML;
-                btn.disabled = true;
-                // ボタン内スピナー
-                btn.innerHTML = `<div style="display:inline-block; width:14px; height:14px; border:2px solid currentColor; border-radius:50%; border-top-color:transparent; animation:rotate 1s linear infinite; margin-right:5px;"></div> 生成中...`;
+            const getStepByStep = async (btnElement, problem, initialAnswer) => {
+                const button = btnElement.closest('button');
+                button.disabled = true;
+                // ボタン内のローディングスピナー（小さいサイズ）
+                button.innerHTML = `
+                    <svg class="loader" style="width:16px; height:16px; margin-right:8px; animation:rotate 1s linear infinite;" viewBox="0 0 50 50">
+                        <circle class="path" cx="25" cy="25" r="20" fill="none" stroke="#fff" stroke-width="4"></circle>
+                    </svg>
+                    解説を生成中...`;
 
-                const prompt = `以下の内容について、初心者にもわかるように詳細なステップごとの解説（Step 1, Step 2...）を作成してください。
-                項目: ${contextTitle}
-                内容: ${contextContent}
-                数式はLaTeXで、説明は日本語で行ってください。`;
+                const prompt = `以下の質問と解答について、論理的なステップごとの詳しい解説を作成してください。
+                ステップごとに番号を振り（例: Step 1, Step 2...）、何が行われたかを明確に説明してください。
+                文章の途中には適宜改行を入れて、読みやすくしてください。
+                
+                質問: ${problem}
+                解答: ${initialAnswer}
+                
+                解説は日本語で、数式はKaTeX形式で出力してください。`;
 
                 try {
-                    const stepsText = await callApi(prompt, 'gemini'); // 解説は常にGeminiモードで行う
+                    const stepsText = await callApiViaWorker(prompt);
                     
                     const stepsContainer = document.createElement('div');
-                    stepsContainer.className = 'content-body steps-container';
-                    stepsContainer.style.marginTop = '1rem';
-                    stepsContainer.style.background = 'rgba(0,0,0,0.3)';
-                    stepsContainer.style.padding = '1rem';
-                    stepsContainer.style.borderRadius = '8px';
-                    stepsContainer.style.borderLeft = '3px solid var(--accent-color)';
-                    stepsContainer.innerText = stepsText;
+                    stepsContainer.className = 'steps-container';
+                    stepsContainer.innerHTML = `
+                        <div style="font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; color:var(--primary-color);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                              <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                            </svg>
+                            AIによるステップごとの解説
+                        </div>
+                        <div class="steps-content">${stepsText}</div>
+                    `;
 
-                    btn.parentNode.appendChild(stepsContainer);
-                    btn.style.display = 'none';
+                    const actionArea = button.parentElement;
+                    actionArea.appendChild(stepsContainer);
+                    button.style.display = 'none';
 
                     renderMath(stepsContainer);
-                    scrollToBottom();
 
-                } catch (e) {
-                    alert('解説の生成に失敗しました');
-                    btn.innerHTML = originalBtnText;
-                    btn.disabled = false;
-                }
-            };
-
-            const handleSubmission = async () => {
-                const text = problemInput.value.trim();
-                if (!text) return;
-
-                addUserMessage(text);
-                problemInput.value = '';
-
-                const loadingCard = addAiMessagePlaceholder();
-
-                try {
-                    const resultText = await callApi(text, currentModel);
-                    parseAndDisplayAiResponse(resultText, loadingCard);
                 } catch (error) {
-                    loadingCard.innerHTML = `
-                        <div class="section-title" style="color:#ff4757;"><i class="bi bi-exclamation-triangle"></i> ERROR</div>
-                        <div class="content-body">エラーが発生しました: ${error.message}</div>
-                    `;
+                    alert(`解説の生成に失敗しました: ${error.message}`);
+                    button.disabled = false;
+                    button.innerHTML = `再試行`;
                 }
             };
 
