@@ -15,6 +15,9 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
 
+    <!-- Function Plot: Graph Visualization Library -->
+    <script src="https://unpkg.com/function-plot/dist/function-plot.js"></script>
+
     <style>
         :root {
             /* Wolfram Alpha Inspired Colors */
@@ -199,6 +202,22 @@
             white-space: pre-wrap;
             word-break: break-word;
             overflow-x: auto; /* 数式が長すぎる場合のスクロール */
+        }
+
+        /* Graph Specific Styles */
+        .graph-wrapper {
+            width: 100%;
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff; /* グラフ背景は白が見やすい */
+            border-radius: 4px;
+        }
+        @media (prefers-color-scheme: dark) {
+            .graph-wrapper {
+                filter: invert(0.9) hue-rotate(180deg); /* 簡易的なダークモード対応 */
+            }
         }
 
         /* Action Buttons */
@@ -459,6 +478,58 @@
                 return card;
             };
 
+            // グラフ描画関数 (function-plot使用)
+            const tryRenderGraph = (problemString) => {
+                // xが含まれていない場合はグラフ描画を試みない
+                if (!problemString.toLowerCase().includes('x')) return;
+
+                const targetId = 'graph-target';
+                const card = createCard('グラフ (可視化)', `<div id="${targetId}" class="graph-wrapper"></div>`);
+                resultsContainer.appendChild(card);
+
+                try {
+                    const width = document.getElementById(targetId).clientWidth || 600;
+                    
+                    // 入力文字列の簡易解析
+                    let fnData = [];
+                    const cleanProblem = problemString.replace(/\s/g, ''); // 空白除去
+
+                    if (cleanProblem.includes('=')) {
+                        const parts = cleanProblem.split('=');
+                        const left = parts[0];
+                        const right = parts[1];
+
+                        // "y=..." または "f(x)=..." の形式の場合、右辺のみをプロット
+                        if (left === 'y' || left === 'f(x)') {
+                            fnData.push({ fn: right });
+                        } else {
+                            // "x^2 = 4" のような方程式の場合、両辺をプロットして交点を示す
+                            fnData.push({ fn: left, color: 'steelblue' });
+                            // 右辺が0でない場合、または0でも明示的に描画したい場合
+                            fnData.push({ fn: right, color: 'firebrick' });
+                        }
+                    } else {
+                        // 等号がない場合、式そのものを関数としてプロット
+                        fnData.push({ fn: cleanProblem });
+                    }
+
+                    functionPlot({
+                        target: `#${targetId}`,
+                        width: width,
+                        height: 350,
+                        grid: true,
+                        data: fnData,
+                        tip: {
+                            xLine: true,
+                            yLine: true,
+                        }
+                    });
+                } catch (e) {
+                    console.error("Graph rendering failed:", e);
+                    card.remove(); // 描画に失敗した場合はカードごと削除
+                }
+            };
+
             const handleSubmission = async () => {
                 const problem = problemInput.value.trim();
                 if (!problem) return;
@@ -470,6 +541,9 @@
                 resultsContainer.appendChild(inputCard);
                 // ユーザーが数式形式で入力した場合のためにレンダリングを実行
                 renderMath(inputCard);
+
+                // ★★★ ここでグラフ描画を試行 (AIの応答を待たずに即時実行) ★★★
+                tryRenderGraph(problem);
 
                 // その下にローダーを表示
                 mainLoader.style.display = 'flex';
